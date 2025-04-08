@@ -483,6 +483,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const toolKit = document.querySelector('#toolkit-img');
         const research = document.querySelector('#research-img');
         const capstone = document.querySelector('#capstone-img');
+        const buttonSwitch = document.querySelector('#light');
         let mode = 'dark';
     
         button.addEventListener('click', function() {
@@ -505,6 +506,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 research.src = 'images/research-switch.png';
                 capstone.src = 'images/capstone-switch.png';
                 toolKit.src = 'images/toolkit-switch.png';
+                buttonSwitch.src = 'images/check-1-switch.png';
                 mode = 'light';
             } else {
                 body.removeAttribute('class');
@@ -525,6 +527,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 research.src = 'images/research.png';
                 capstone.src = 'images/capstone.png';
                 toolKit.src = 'images/toolkit.png';
+                buttonSwitch.src = 'images/check-1.png';
                 mode = 'dark';
             }
         });
