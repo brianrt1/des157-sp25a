@@ -431,32 +431,86 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-(function() {
+/* (function() {
     'use strict';
 
     const button = document.querySelector('button');
     const body = document.querySelector('body');
-    const banner = document.querySelector('#banner');
-    const sections = document.querySelectorAll('section')
+    const name = document.querySelector('h1');
+    const subText = document.querySelector('h2');
+    const border = document.querySelectorAll('#border');
+    const backSplash = document.querySelector('#line');
+    
     let mode = 'dark';
 
     button.addEventListener('click', function() {
         if (mode === 'dark') {
             body.className = 'switch';
-            banner.className = 'switch';
             button.className = 'switch';
-            for (const section of sections) {
-                section.className = 'switch';
+            name.className = 'switch';
+            subText.className = 'switch';
+            backSplash.className = 'switch';
+            for (const borders of border) {
+                borders.className = 'switch';
             }
             mode = 'light';
         } else {
             body.removeAttribute('class');
-            banner.removeAttribute('class');
             button.removeAttribute('class');
-            for (const section of sections) {
-                section.removeAttribute('class');
+            name.removeAttribute('class');
+            subText.removeAttribute('class');
+            backSplash.removeAttribute('class');
+            for (const borders of border) {
+                borders.removeAttribute('class');
             }
             mode = 'dark'
         }
     })
-})()
+})() */
+
+    (function() {
+        'use strict';
+    
+        const button = document.querySelector('button');
+        const body = document.querySelector('body');
+        const name = document.querySelector('h1');
+        const subText = document.querySelector('h2');
+        const border = document.querySelectorAll('#border');
+        const listItems = document.querySelectorAll('.list-1');
+        const backSplash = document.querySelector('#line');  // Image element
+        let mode = 'dark';
+    
+        button.addEventListener('click', function() {
+            if (mode === 'dark') {
+                body.className = 'switch';
+                button.className = 'switch';
+                name.className = 'switch';
+                subText.className = 'switch';
+                backSplash.className = 'switch';
+                for (const borders of border) {
+                    borders.className = 'switch';
+                }
+                for (const items of listItems) {
+                    items.className = 'switch';
+                }
+                // Change the image source to line-2.png
+                backSplash.src = 'images/line-2.png';
+                mode = 'light';
+            } else {
+                body.removeAttribute('class');
+                button.removeAttribute('class');
+                name.removeAttribute('class');
+                subText.removeAttribute('class');
+                backSplash.removeAttribute('class');
+                for (const borders of border) {
+                    borders.removeAttribute('class');
+                }
+                for (const items of listItems) {
+                    items.removeAttribute('class');
+                }
+                // Change the image source back to line.png
+                backSplash.src = 'images/line.png';
+                mode = 'dark';
+            }
+        });
+    })();
