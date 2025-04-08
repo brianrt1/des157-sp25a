@@ -477,7 +477,12 @@ document.addEventListener('DOMContentLoaded', function () {
         const subText = document.querySelector('h2');
         const border = document.querySelectorAll('#border');
         const listItems = document.querySelectorAll('.list-1');
-        const backSplash = document.querySelector('#line');  // Image element
+        const backSplash = document.querySelector('#line');
+        const ministudio = document.querySelector('#ministudio-img');
+        const development = document.querySelector('#development-img');
+        const toolKit = document.querySelector('#toolkit-img');
+        const research = document.querySelector('#research-img');
+        const capstone = document.querySelector('#capstone-img');
         let mode = 'dark';
     
         button.addEventListener('click', function() {
@@ -493,8 +498,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 for (const items of listItems) {
                     items.className = 'switch';
                 }
-                // Change the image source to line-2.png
+                
                 backSplash.src = 'images/line-2.png';
+                ministudio.src = 'images/ministudio-switch.png';
+                development.src = 'images/development-switch.png';
+                research.src = 'images/research-switch.png';
+                capstone.src = 'images/capstone-switch.png';
+                toolKit.src = 'images/toolkit-switch.png';
                 mode = 'light';
             } else {
                 body.removeAttribute('class');
@@ -508,8 +518,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 for (const items of listItems) {
                     items.removeAttribute('class');
                 }
-                // Change the image source back to line.png
+                
                 backSplash.src = 'images/line.png';
+                ministudio.src = 'images/ministudio.png';
+                development.src = 'images/development.png';
+                research.src = 'images/research.png';
+                capstone.src = 'images/capstone.png';
+                toolKit.src = 'images/toolkit.png';
                 mode = 'dark';
             }
         });
