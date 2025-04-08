@@ -1,0 +1,315 @@
+body{
+    text-align: center;
+    background-color: #333;
+    background: rgb(235, 235, 235);
+}
+
+body.switch{
+    background-color: rgb(81, 38, 0);
+}
+.container {
+
+    display: none;
+     margin-left: auto;
+    margin-right: auto;
+    margin-top: 10px;
+    width: 300px;
+    height: 1200px;
+    background-color: red;
+    gap: 0px;
+    z-index: 1;
+    position: relative;
+    
+    
+}
+
+.container-development {
+
+    display: none;
+     margin-left: auto;
+    margin-right: auto;
+    margin-top: 10px;
+    width: 300px;
+    height: 1200px;
+    background-color: pink;
+    gap: 0px;
+    z-index: 1;
+    position: relative;
+    
+    
+}
+
+.container-ministudio {
+
+    display: none;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 10px;
+    width: 300px;
+    height: 600px;
+    background-color: blue;
+    gap: 0px;
+    z-index: 1;
+    position: relative;
+    
+    
+}
+
+.container-toolkit {
+
+    display: none;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 10px;
+    width: 300px;
+    height: 600px;
+    background-color: green;
+    gap: 0px;
+    z-index: 1;
+    position: relative;
+    
+    
+}
+
+.container-capstone {
+
+    display: none;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 10px;
+    width: 300px;
+    height: 600px;
+    background-color: yellow;
+    gap: 0px;
+    z-index: 1;
+    position: relative;
+    
+    
+}
+
+.container-2 {
+
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 10px;
+    width: 350px;
+    height: 200px;
+    gap: 40px;
+    z-index: 1;
+    position: relative;
+    
+    
+}
+
+.container-2 h1 {
+
+    text-align: left;
+    font-family: helvetica;
+}
+
+.container-2 h2 {
+
+    text-align: left;
+    font-family: helvetica;
+}
+
+.container-2 button{
+    float: right;
+   margin-right: 20px;
+   margin-bottom: 20px;
+
+}
+
+nav {
+
+    z-index: 1;
+    list-style: none;
+    text-decoration: none;
+    margin-left: auto;
+    margin-right: auto;
+    min-width: 100px;
+    max-width: 250px;
+
+
+
+}
+
+nav ul {
+
+    position: relative;
+    margin-right: auto;
+    margin-left: auto;
+    left: -20px;
+}
+
+nav ul li a{
+
+   position: relative;
+    list-style-type: none;
+    text-decoration: none;
+    font-family: Arial, Helvetica, sans-serif;
+    color: brown;
+    font-size: 25px;
+    margin-top: auto;
+    margin-bottom: auto;
+    top: 10px;
+}
+
+nav ul li {
+
+    border-bottom: 2px;
+    border-color: black;
+    border-bottom-style: solid;
+    list-style-type: none;
+    max-width: 200px;
+    align-items: center;
+    height: 40px;
+}
+
+
+
+#ministudio {
+
+   position: relative;
+   top: -10px;
+   height: 20px;
+   width: 20px;
+}
+#development {
+
+    position: relative;
+    top: -10px;
+    height: 20px;
+   width: 20px;
+ }
+ #toolkit {
+
+    position: relative;
+    top: 0px;
+    height: 20px;
+   width: 20px;
+ }
+ #research {
+
+    position: relative;
+    top: -10px;
+    height: 20px;
+   width: 20px;
+ }
+ #capstone {
+
+    position: relative;
+    top: 0px;
+    height: 20px;
+   width: 20px;
+ }
+
+ .background-img {
+
+    position: absolute;
+    width: 100vw;
+    height: 100vw;
+ 
+    top: 500px;
+ }
+
+ .background-img img {
+
+
+    height: 10%;
+    width: 100%;
+
+   
+ }
+
+ .tile {
+
+    max-width: 300px;
+    min-width: 300px;
+    height: 200px;
+    color: white;
+ }
+
+ .tile a img {
+
+    position: absolute;
+    height: 90px;
+    width: 90px;
+    bottom: 50px;
+    
+ }
+
+ .tile a {
+   
+
+    text-decoration: none;
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 46px;
+    position: relative;
+    top: 130px;
+    text-align: left;
+
+ }
+
+ .tile {
+
+ }
+
+ .container-visible {
+
+    display: block;
+ }
+
+ .switch {
+
+ }
+
+ @media screen and (min-width: 1200px) {
+    body {
+      
+    }
+    .container {
+        display: none;
+        flex-wrap: wrap;
+        width: 900px;
+        height: 400px;
+    }
+
+    .container-development {
+        display: none;
+        flex-wrap: wrap;
+        width: 900px;
+        height: 400px;
+    }
+
+    .container-ministudio {
+        display: none;
+        flex-wrap: wrap;
+        width: 900px;
+        height: 200px;
+    }
+
+    .container-toolkit {
+        display: none;
+        flex-wrap: wrap;
+        width: 900px;
+        height: 200px;
+    }
+
+    .container-capstone {
+        display: none;
+        flex-wrap: wrap;
+        width: 900px;
+        height: 200px;
+    }
+
+    .container-2{
+        width: 900px;
+    }
+
+    nav {
+        position: absolute;
+        left: 200px;
+    }
+  }
