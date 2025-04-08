@@ -366,7 +366,7 @@ nav ul li.switch {
         flex-wrap: wrap;
         width: 900px;
         height: 400px;
-        margin-top: -200px
+        margin-top: -220px
     }
 
     .container-development {
@@ -374,7 +374,7 @@ nav ul li.switch {
         flex-wrap: wrap;
         width: 900px;
         height: 400px;
-        margin-top: -200px
+        margin-top: -220px
     }
 
     .container-ministudio {
@@ -382,7 +382,7 @@ nav ul li.switch {
         flex-wrap: wrap;
         width: 900px;
         height: 200px;
-        margin-top: -200px
+        margin-top: -220px
     }
 
     .container-toolkit {
@@ -390,7 +390,7 @@ nav ul li.switch {
         flex-wrap: wrap;
         width: 900px;
         height: 200px;
-        margin-top: -200px
+        margin-top: -220px
     }
 
     .container-capstone {
@@ -399,7 +399,7 @@ nav ul li.switch {
         width: 600px;
         height: 200px;
         right: 150px;
-        margin-top: -200px
+        margin-top: -220px
     }
 
     .container-2{
