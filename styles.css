@@ -366,6 +366,7 @@ nav ul li.switch {
         flex-wrap: wrap;
         width: 900px;
         height: 400px;
+        margin-top: -200px
     }
 
     .container-development {
@@ -373,6 +374,7 @@ nav ul li.switch {
         flex-wrap: wrap;
         width: 900px;
         height: 400px;
+        margin-top: -200px
     }
 
     .container-ministudio {
@@ -380,6 +382,7 @@ nav ul li.switch {
         flex-wrap: wrap;
         width: 900px;
         height: 200px;
+        margin-top: -200px
     }
 
     .container-toolkit {
@@ -387,6 +390,7 @@ nav ul li.switch {
         flex-wrap: wrap;
         width: 900px;
         height: 200px;
+        margin-top: -200px
     }
 
     .container-capstone {
@@ -395,6 +399,7 @@ nav ul li.switch {
         width: 600px;
         height: 200px;
         right: 150px;
+        margin-top: -200px
     }
 
     .container-2{
@@ -402,8 +407,8 @@ nav ul li.switch {
     }
 
     nav {
-        position: absolute;
-        left: 200px;
+        position: relative;
+        right: 600px;
     }
 
     #toolkit img {
@@ -430,5 +435,12 @@ nav ul li.switch {
     
 
 
+    
+  }
+
+  @media screen and (min-width: 800px) {
+ 
+   
+    
     
   }
