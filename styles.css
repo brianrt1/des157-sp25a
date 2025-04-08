@@ -216,12 +216,15 @@ nav ul li.switch {
    top: 10px;
    height: 20px;
    width: 20px;
+   left: 15px;
 }
 
 #ministudio img {
 
+    position: relative;
     height: 20px;
     width: 20px;
+    right: 10px;
 }
 #development {
 
@@ -244,8 +247,10 @@ nav ul li.switch {
  }
  #toolkit img {
 
+    position: relative;
     height: 20px;
     width: 20px;
+    right: 20px;
 }
  #research {
 
@@ -255,9 +260,10 @@ nav ul li.switch {
    width: 20px;
  }
  #research img {
-
+    position: relative;
     height: 20px;
     width: 20px;
+    right: 20px;
 }
  #capstone {
 
@@ -268,8 +274,10 @@ nav ul li.switch {
  }
  #capstone img {
 
+    position: relative;
     height: 20px;
     width: 20px;
+    right: 20px;
 }
 
  .background-img {
@@ -396,4 +404,24 @@ nav ul li.switch {
         position: absolute;
         left: 200px;
     }
+
+    #toolkit img {
+
+    
+        right: 40px;
+    }
+
+    #ministudio img {
+
+    
+        right: 18px;
+    }
+
+    #ministudio {
+
+        left: 0px;
+     }
+
+
+    
   }
