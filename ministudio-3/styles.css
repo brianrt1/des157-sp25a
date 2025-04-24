@@ -1,0 +1,165 @@
+ul {
+    list-style-type: none;
+    padding-left: 0;
+    margin-left: auto;
+    margin-right: auto;
+    width: 320px;
+    margin-top: 50px;
+}
+
+ul li a {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 4em;
+    text-decoration: none;
+    color: white;
+}
+
+ul li a:hover {
+
+    color: black;
+    
+}
+
+ul li a:active {
+
+    color: black;
+    opacity: 40%;
+}
+
+nav {
+
+    position: fixed;
+    margin-left: auto;
+    margin-right: auto;
+    
+}
+
+.background {
+
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    z-index: -1;
+    top: 0px;
+}
+
+.wordmark p {
+
+    font-family: Arial, Helvetica, sans-serif;
+    color: white;
+    position: fixed;
+    left: 20px;
+    
+}
+
+.wordmark {
+
+    bottom: 20px;
+    position: fixed;
+    width: 250px;
+    height: 100px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+body {
+
+    margin-top: -10px;
+}
+
+.window {
+
+    width: 300px;
+    height: 430px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.data-display{
+    width: 350px;
+    margin-right: auto;
+    margin-left: auto;
+    
+}
+
+.data-display p {
+
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 80px;
+
+
+
+}
+
+.time-icon {
+    
+    display: flex;
+    flex-direction: row;
+}
+
+.time-icon img{
+
+    margin-top: auto;
+    margin-bottom: auto;
+    padding-right: 40px;
+    height: 80px;
+    width: 80px;
+
+}
+
+.weather-icon{
+
+    display: flex;
+    flex-direction: row;
+
+}
+
+.weather-icon img{
+
+    margin-top: auto;
+    margin-bottom: auto;
+    padding-right: 40px;
+    height: 80px;
+    width: 80px;
+
+}
+
+.transport-icon {
+
+
+    display: flex;
+    flex-direction: row;
+}
+
+.transport-icon img{
+
+    margin-top: auto;
+    margin-bottom: auto;
+    padding-right: 40px;
+    height: 80px;
+    width: 80px;
+}
+
+.speed-icon{
+
+
+    display: flex;
+    flex-direction: row;
+}
+
+.speed-icon img{
+
+    margin-top: auto;
+    margin-bottom: auto;
+    padding-right: 40px;
+    height: 80px;
+    width: 80px;
+
+}
+@media screen and (min-width: 800px) {
+
+
+ 
+  
+  
+}
