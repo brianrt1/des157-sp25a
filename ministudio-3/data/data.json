@@ -3,36 +3,36 @@
       {
         "day": "Monday",
         "time": "09m 22s",
-        "weather": "Sunny",
-        "transport": "Bicycle",
+        "weather": "sunny",
+        "transport": "bicycle",
         "avg_speed_mph": 13
       },
       {
         "day": "Tuesday",
         "time": "10m 41s",
-        "weather": "Partly Cloudy",
+        "weather": "partly Cloudy",
         "transport": "Bicycle",
         "avg_speed_mph": 13
       },
       {
         "day": "Wednesday",
         "time": "12m 02s",
-        "weather": "Sunny",
-        "transport": "Bicycle",
+        "weather": "sunny",
+        "transport": "bicycle",
         "avg_speed_mph": 12
       },
       {
         "day": "Thursday",
         "time": "11m 03s",
-        "weather": "Sunny",
-        "transport": "Bicycle",
+        "weather": "sunny",
+        "transport": "bicycle",
         "avg_speed_mph": 12
       },
       {
         "day": "Friday",
         "time": "11m 45s",
-        "weather": "Sunny",
-        "transport": "Bicycle",
+        "weather": "sunny",
+        "transport": "bicycle",
         "avg_speed_mph": 12
       }
     ]
