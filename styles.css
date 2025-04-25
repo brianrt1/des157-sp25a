@@ -15,7 +15,7 @@ body.switch{
     margin-top: 10px;
     width: 300px;
     height: 1200px;
-    background-color: #12B3D8;
+    background-color: #350926;
     gap: 0px;
     z-index: 1;
     position: relative;
@@ -31,7 +31,7 @@ body.switch{
     margin-top: 10px;
     width: 300px;
     height: 1200px;
-    background-color: orange;
+    background-color: #F96806;
     gap: 0px;
     z-index: 1;
     position: relative;
@@ -56,7 +56,7 @@ body.switch{
     margin-top: 10px;
     width: 300px;
     height: 600px;
-    background-color: red;
+    background-color: #ED2B21;
     gap: 0px;
     z-index: 1;
     position: relative;
@@ -72,7 +72,7 @@ body.switch{
     margin-top: 10px;
     width: 300px;
     height: 600px;
-    background-color: green;
+    background-color: #EDD921;
     gap: 0px;
     z-index: 1;
     position: relative;
