@@ -52,6 +52,9 @@ function updateOverlays(day) {
   document.querySelector(".weather-icon p").textContent = stat.weather;
   document.querySelector(".transport-icon p").textContent = stat.transport;
   document.querySelector(".speed-icon p").textContent = `${stat.avg_speed_mph}mph avg.`;
+
+  document.querySelector('.window-2').classList.add('active');
+  document.querySelector('.arrow').classList.add('active-1');
 }
 
 function initNavigation() {
