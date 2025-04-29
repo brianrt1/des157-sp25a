@@ -228,6 +228,13 @@ body {
     transition: 1s ease-in-out;
 
 }
+
+nav ul li a.active-day {
+    color: black;
+    opacity: 0.5;
+  }
+
+  
 @media screen and (min-width: 800px) {
 
     .window{
