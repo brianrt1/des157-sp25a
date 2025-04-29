@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""/>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin="">
+
+
+
+</script>
+    </script>
+    <title>Toolkit 1</title>
+</head>
+<body>
+    <div class="window">
+        
+    <div id="map"></div>
+    <h1>D3</h1>
+    <p>D3 is a robust library designed to visalize data with presets and tools for creating figures. With this tool, you can create charts, graphs, and display your data without having to build custom solutons. It even allows data to be interactive, allowing for more immersive experiences for users, and more customizablitiy in presenting your data.</p>
+    </div>
+
+
+    <script>
+    var map = L.map('map').setView([38.54227, -121.7759], 13);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+}).addTo(map);
+
+var marker = L.marker([38.54227, -121.7759]).addTo(map);
+marker.bindPopup("<b>Davis, California</b><br>Brian's Apartment").openPopup();
+
+var polygon = L.polygon([
+    [38.54405, -121.74478],
+    [38.54626, -121.74523],
+    [38.54658, -121.74437],
+    [38.5442, -121.74380]
+]).addTo(map);
+polygon.bindPopup("<b>Davis, California</b><br>Central Park");
+
+var circle = L.circle([38.54276, -121.74108], {
+    color: 'yellow',
+    fillColor: '#f03',
+    fillOpacity: 0.5,
+    radius: 100
+}).addTo(map);
+circle.bindPopup("<b>Davis, California</b><br>The Hotdogger");
+    </script>
+</body>
+</html>

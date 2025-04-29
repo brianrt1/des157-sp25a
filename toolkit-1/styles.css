@@ -1,0 +1,27 @@
+body {
+    text-align: center;
+}
+
+#map { height: 500px;
+width: 500px; }
+
+.window {
+
+    margin-top: 100px;
+    margin-right: 50%;
+    margin-left: 50%;
+
+
+}
+
+p {
+    width: 700px;
+    text-align: left;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+h1 {
+    padding-top: 50px;
+    margin-top: 20px;
+    font-family: Arial, Helvetica, sans-serif;
+}
