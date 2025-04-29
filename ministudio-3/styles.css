@@ -232,6 +232,7 @@ body {
 nav ul li a.active-day {
     color: black;
     opacity: 0.5;
+    transition: opacity 0.5s ease, color 1s ease;
   }
 
   
