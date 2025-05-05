@@ -1,0 +1,133 @@
+body {
+
+    background-image: url(images/garden-background-2.png);
+    background-color: #ffff;
+    background-size: cover;
+    text-align: center;
+    overflow:hidden;
+    
+
+}
+
+.space {
+    height: 20px;
+}
+
+.window {
+    width: 750px;
+    max-height: 100vh;
+    position: relative; /* Needed for absolute children */
+    overflow: hidden; /* Prevent overflow from shifting layout */
+    margin-left: auto;
+    margin-right: auto;
+    overflow:visible;
+    padding-top: 0px;
+}
+.display-1{
+    display: none;
+}
+
+.display-2{
+    display: none;
+}
+
+.display-3{
+    display: none;
+}
+
+.farmplaque {
+
+    width: 100%;
+    height: 100;
+    object-fit: contain;
+
+}
+
+.title-card {
+
+    position: absolute;
+    width: 606px;
+    height: 446px;
+    top: 220px;
+    left: 40px;
+    
+
+    
+}
+
+
+.title-card-2 {
+
+    position: relative;
+    width: 800px;
+    height: 627px;
+    left: -400px;
+    top: -650px;
+}
+
+.ecoplaque {
+
+    
+    height: 100%;
+    object-fit: contain;
+    
+
+}
+
+.title-card-0 {
+
+    position: relative;
+    width: 606px;
+    height: 446px;
+    
+}
+
+.road {
+
+    position: absolute;
+    left: 0px;
+    width: 1200px;
+    height: 1500px;
+    top: -400px;
+    object-fit: contain;
+    
+
+}
+
+
+.title-card-3 {
+
+    position: absolute;
+    width: 606px;
+    height: 446px;
+    right: -300px;
+    top: 0px;
+}
+
+.woodsplaque {
+
+    
+    height: 100%;
+    object-fit: contain;
+    
+
+}
+
+.title-card-4 {
+
+    position: absolute;
+    width: 606px;
+    height: 446px;
+    left: -250px;
+    top: 550px;
+}
+
+.marketplaque {
+
+    
+    height: 100%;
+    object-fit: contain;
+    
+
+}
+
