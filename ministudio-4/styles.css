@@ -4,7 +4,7 @@ body {
     background-color: #ffff;
     background-size: cover;
     text-align: center;
-    overflow:hidden;
+    overflow-x: hidden;
     
 
 }
@@ -85,8 +85,8 @@ body {
 .road {
 
     position: absolute;
-    left: 0px;
-    width: 1200px;
+    left: -20px;
+    width: 1300px;
     height: 1500px;
     top: -400px;
     object-fit: contain;
@@ -98,10 +98,10 @@ body {
 .title-card-3 {
 
     position: absolute;
-    width: 606px;
-    height: 446px;
-    right: -300px;
-    top: 0px;
+    width: 655px;
+    height: 804px;
+    right: -450px;
+    top: -150px;
 }
 
 .woodsplaque {
@@ -116,8 +116,8 @@ body {
 .title-card-4 {
 
     position: absolute;
-    width: 606px;
-    height: 446px;
+    width: 728px;
+    height: 685px;
     left: -250px;
     top: 550px;
 }
