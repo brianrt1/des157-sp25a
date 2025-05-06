@@ -87,8 +87,8 @@ body {
     position: absolute;
     left: -20px;
     width: 1300px;
-    height: 1500px;
-    top: -400px;
+    height: 1400px;
+    top: -300px;
     object-fit: contain;
     
 
@@ -130,4 +130,41 @@ body {
     
 
 }
+
+#override-0 {
+
+    top: 270px !important;
+    left: 60px !important;
+    position: absolute !important;
+}
+
+
+#override-1 {
+
+    left: -350px !important;
+    top: -150px !important;
+    position: absolute !important;
+}
+
+#override-2 {
+
+    left: 550px !important;
+    top: -150px !important;
+    position: absolute !important;
+}
+
+
+#override-3 {
+
+    left: -300px !important;
+    top: 550px !important;
+    position: absolute !important;
+}
+
+#override-4 {
+
+  
+}
+
+
 
