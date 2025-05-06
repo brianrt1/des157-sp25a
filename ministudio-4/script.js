@@ -62,7 +62,6 @@ var scene = document.getElementById('scene');
 var parallaxInstance = new Parallax(scene);
 
 $(document).ready(function() {
-  // Store animation interval IDs to clear them when mouse leaves
   let animationIntervals = {
     guitar: null,
     comb: null,
@@ -71,7 +70,7 @@ $(document).ready(function() {
     pitchfork: null
   };
   
-  // Helper function for wiggle animation with rotation
+
   function wiggleElement($element, callback) {
     const originalLeft = parseInt($element.css('left'));
     const originalTop = parseInt($element.css('top'));
@@ -85,7 +84,7 @@ $(document).ready(function() {
       .animate({left: originalLeft, rotate: originalRotate + 'deg'}, 300, callback);
   }
   
-  // Helper function for jump animation
+
   function jumpElement($element, callback) {
     const originalTop = parseInt($element.css('top'));
     
@@ -94,14 +93,11 @@ $(document).ready(function() {
       .animate({top: originalTop}, 400, callback);
   }
   
-  // Function to setup repeating animations
+
   function setupRepeatingAnimation($element, animType, intervalKey) {
-    // Clear any existing interval for this element
     if (animationIntervals[intervalKey]) {
       clearInterval(animationIntervals[intervalKey]);
     }
-    
-    // Initial animation
     if (animType === 'jump') {
       jumpElement($element);
     } else if (animType === 'wiggle') {
@@ -112,7 +108,7 @@ $(document).ready(function() {
       });
     }
     
-    // Set up repeating animation every 4 seconds
+  
     animationIntervals[intervalKey] = setInterval(function() {
       if (animType === 'jump') {
         jumpElement($element);
@@ -123,36 +119,36 @@ $(document).ready(function() {
           wiggleElement($element);
         });
       }
-    }, 4000); // Repeat every 4 seconds
+    }, 4000);
   }
 
   // Overlay 1 - Guitar and Comb
   $('.overlay-1').hover(
-    function() { // Mouse enter
-      // Store initial rotation for resetting
+    function() {
+     
       $('.guitar-1').data('rotation', 0);
       $('.comb-1').data('rotation', 0);
       
-      // Show guitar with jump effect
+  
       $('.guitar-1')
         .css('display', 'block')
         .animate({opacity: 1}, 500, function() {
           setupRepeatingAnimation($(this), 'jump', 'guitar');
         });
       
-      // Show comb with wiggle and rotation effect
+   
       $('.comb-1')
         .css('display', 'block')
         .animate({opacity: 1}, 500, function() {
           setupRepeatingAnimation($(this), 'wiggle', 'comb');
         });
     },
-    function() { // Mouse leave
-      // Clear the animation intervals
+    function() {
+      
       clearInterval(animationIntervals.guitar);
       clearInterval(animationIntervals.comb);
       
-      // Fade out elements
+      
       $('.guitar-1').animate({opacity: 0}, 700, function() {
         $(this).css({'display': 'none', 'rotate': '0deg'});
       });
@@ -164,22 +160,22 @@ $(document).ready(function() {
 
   // Overlay 2 - Birds
   $('.overlay-2').hover(
-    function() { // Mouse enter
-      // Store initial rotation
+    function() {
+  
       $('.birds-1').data('rotation', 0);
       
-      // Show birds with combined effects
+     
       $('.birds-1')
         .css('display', 'block')
         .animate({opacity: 1}, 500, function() {
           setupRepeatingAnimation($(this), 'both', 'birds');
         });
     },
-    function() { // Mouse leave
-      // Clear the animation interval
+    function() {
+      
       clearInterval(animationIntervals.birds);
       
-      // Fade out birds
+      
       $('.birds-1').animate({opacity: 0}, 700, function() {
         $(this).css({'display': 'none', 'rotate': '0deg'});
       });
@@ -188,31 +184,31 @@ $(document).ready(function() {
 
   // Overlay 3 - Tractor and Pitchfork
   $('.overlay-3').hover(
-    function() { // Mouse enter
-      // Store initial rotation values
+    function() { 
+      
       $('.tractor-1').data('rotation', 0);
       $('.pitchfork-1').data('rotation', 0);
       
-      // Show tractor with wiggle and slight rotation effect (like engine rumbling)
+    
       $('.tractor-1')
         .css('display', 'block')
         .animate({opacity: 1}, 500, function() {
           setupRepeatingAnimation($(this), 'wiggle', 'tractor');
         });
       
-      // Show pitchfork with jump effect
+     
       $('.pitchfork-1')
         .css('display', 'block')
         .animate({opacity: 1}, 500, function() {
           setupRepeatingAnimation($(this), 'jump', 'pitchfork');
         });
     },
-    function() { // Mouse leave
-      // Clear the animation intervals
+    function() {
+      
       clearInterval(animationIntervals.tractor);
       clearInterval(animationIntervals.pitchfork);
       
-      // Fade out elements
+     
       $('.tractor-1').animate({opacity: 0}, 700, function() {
         $(this).css({'display': 'none', 'rotate': '0deg'});
       });
