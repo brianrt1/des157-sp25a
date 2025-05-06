@@ -10,6 +10,7 @@ body {
     margin-left: auto;
     margin-right: auto;
     border-radius: 10px;
+
 }
 
 h1 {
@@ -51,7 +52,7 @@ footer p{
     padding-top: 50px;
     font-family: "Fira Code", monospace;
     font-weight: 400;
-    font-size: 18px;
+    font-size: 16px;
     color: black;
     
     
