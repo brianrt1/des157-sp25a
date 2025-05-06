@@ -1,0 +1,59 @@
+body {
+    text-align: center;
+}
+
+.main {
+
+    width: 700px;
+    height: 1200px;
+    background-color: black;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 10px;
+}
+
+h1 {
+
+    padding-top: 50px;
+    font-family: "Fira Code", monospace;
+    font-weight: 500;
+    font-size: 80px;
+    text-align: left;
+    padding-left: 50px;
+    color: white;
+}
+
+h2 {
+
+    padding-top: 50px;
+    font-family: "Fira Code", monospace;
+    font-weight: 500;
+    font-size: 24px;
+    text-align: left;
+    padding-left: 50px;
+    color: white;
+}
+
+p {
+    text-align: left;
+    padding-top: 25px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 18px;
+    padding-left: 50px; 
+    padding-right: 50px;
+    color: white;
+    line-height: 28px;
+}
+
+footer p{
+
+    text-align: center;
+    padding-top: 50px;
+    font-family: "Fira Code", monospace;
+    font-weight: 400;
+    font-size: 18px;
+    color: black;
+    
+    
+}
+
