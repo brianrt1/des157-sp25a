@@ -279,6 +279,18 @@ body {
 
 }
 
+footer{
+    position: absolute;
+    bottom: -200px;
+    right: 40px;
+    text-align: right;
+}
+
+footer p{
+
+    font-family: monospace;
+    
+}
 
 
 
