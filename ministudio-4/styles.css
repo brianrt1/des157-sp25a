@@ -63,6 +63,7 @@ body {
     height: 627px;
     left: -400px;
     top: -650px;
+    z-index: 2;
 }
 
 .ecoplaque {
@@ -87,7 +88,7 @@ body {
     position: absolute;
     left: -20px;
     width: 1300px;
-    height: 1400px;
+    height: 1300px;
     top: -300px;
     object-fit: contain;
     
@@ -102,6 +103,7 @@ body {
     height: 804px;
     right: -450px;
     top: -150px;
+    z-index: 2;
 }
 
 .woodsplaque {
@@ -131,9 +133,75 @@ body {
 
 }
 
+.tractor-1 {
+
+    
+    display: none;
+   position:relative;
+   width: 195px;
+   height: 190px;
+   top: -550px;
+   left: 400px;
+    
+
+}
+
+.pitchfork-1 {
+
+    display: none;
+    position:relative;
+    width: 55px;
+    height: 195px;
+    top: -670px;
+    left: 600px;
+     
+ 
+ }
+
+ .birds-1 {
+
+    display: none;
+    position:relative;
+    width: 290px;
+    height: 256px;
+    top: -600px;
+    left: -100px;
+    z-index: 999;
+     
+ 
+ }
+
+ .guitar-1 {
+
+    display: none;
+    position:relative;
+    width: 153px;
+    height: 311px;
+    top: -350px;
+    left: 270px;
+    opacity: 0;    /* Ensure they are fully transparent */
+    transition: opacity 0.5s ease-in-out; /* Smooth transition */
+     
+ 
+ }
+
+ .comb-1 {
+
+    display: none;
+    position:relative;
+    width: 87px;
+    height: 89px;
+    top: -650px;
+    left: 480px;
+    opacity: 0;    /* Ensure they are fully transparent */
+    transition: opacity 0.5s ease-in-out; /* Smooth transition */
+     
+ 
+ }
+
 #override-0 {
 
-    top: 270px !important;
+    top: 240px !important;
     left: 60px !important;
     position: absolute !important;
 }
@@ -142,7 +210,7 @@ body {
 #override-1 {
 
     left: -350px !important;
-    top: -150px !important;
+    top: -210px !important;
     position: absolute !important;
 }
 
@@ -157,7 +225,7 @@ body {
 #override-3 {
 
     left: -300px !important;
-    top: 550px !important;
+    top: 500px !important;
     position: absolute !important;
 }
 
@@ -165,6 +233,57 @@ body {
 
   
 }
+
+.overlay-1 {
+
+    position: absolute;
+    height: 500px;
+    width: 1000px;
+    z-index: 1;
+    top: 0px;
+    left: 0px;
+    /* background-color: red; */
+    opacity: .5;
+
+
+
+}
+
+.overlay-2 {
+
+    position: absolute;
+    height: 500px;
+    width: 1000px;
+    z-index: 1;
+    top: 0px;
+    right: 0px;
+    /* background-color: green; */
+    opacity: .5;
+
+
+
+}
+
+.overlay-3 {
+
+    position: absolute;
+    height: 500px;
+    width: 1000px;
+    z-index: 1;
+    bottom: 0px;
+    left: 0px;
+    /* background-color: blue; */
+    opacity: .5;
+
+
+
+}
+
+
+
+
+
+
 
 
 
