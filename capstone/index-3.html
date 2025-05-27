@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha512-NhSC1YmyruXifcj/KFRWoC561YpHpc5Jtzgvbuzx5VozKpWvQ+4nXhPdFgmx8xqexRcpAglTj9sIBWINXa8x5w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-  <title>Interactive World Evolution</title>
+  <title>Circles</title>
   <style>
     * {
       margin: 0;
@@ -18,7 +18,7 @@
       height: 100vh;
       overflow: hidden;
       font-family: Arial, sans-serif;
-      cursor: default; /* Standard cursor */
+      cursor: default;
     }
 
     .rotation-container {
@@ -59,6 +59,26 @@
       position: absolute;
       width: 30px;
       height: 40px;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0;
+    }
+
+    .oil-rig-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) translateX(0px) translateY(205px);
+      width: 400px;
+      height: 400px;
+      z-index: 3;
+    }
+
+    .oil-rig-img {
+      position: absolute;
+      width: 40px;
+      height: 50px;
       top: 0;
       left: 50%;
       transform: translateX(-50%);
@@ -158,20 +178,25 @@
   <div class="rotation-container" id="rotationContainer">
     <div class="circle"></div>
     <div class="tree-container" id="treeContainer"></div>
+    <div class="oil-rig-container" id="oilRigContainer"></div>
   </div>
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       const container = document.getElementById("rotationContainer");
       const treeContainer = document.getElementById("treeContainer");
+      const oilRigContainer = document.getElementById("oilRigContainer");
       const timeIndicator = document.getElementById("timeIndicator");
       const leftZone = document.getElementById("leftZone");
       const centerZone = document.getElementById("centerZone");
       const rightZone = document.getElementById("rightZone");
       
       const totalTrees = 34;
+      const totalOilRigs = 3;
       let trees = [];
+      let oilRigs = [];
       let currentTreeCount = 0;
+      let currentOilRigCount = 0;
       let rotationTween;
       let growthInterval;
       let shrinkInterval;
@@ -181,7 +206,6 @@
         if (rotationTween) rotationTween.kill();
         
         if (speed < 0) {
-          // Counter-clockwise rotation
           rotationTween = gsap.to(container, {
             rotation: "-=360",
             duration: Math.abs(speed),
@@ -189,7 +213,6 @@
             repeat: -1
           });
         } else {
-          // Clockwise rotation
           rotationTween = gsap.to(container, {
             rotation: "+=360",
             duration: speed,
@@ -202,9 +225,31 @@
       // Create tree image
       function createTreeImage() {
         const img = document.createElement("img");
-        img.src = "images/tree-set-03.png";
+        img.src = "images/trees-04.png";
         img.className = "tree-img";
         return img;
+      }
+
+      // Create oil rig image
+      function createOilRigImage() {
+        const img = document.createElement("img");
+        img.src = "images/oil-rig-01.png";
+        img.className = "oil-rig-img";
+        return img;
+      }
+
+      // Calculate viewport edge position for a given angle
+      function getViewportEdgePosition(angle) {
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
+        const maxDistance = Math.max(window.innerWidth, window.innerHeight);
+        
+        // Convert angle to radians and calculate edge position
+        const radians = (angle - 90) * (Math.PI / 180); // -90 to align with top
+        const edgeX = centerX + Math.cos(radians) * maxDistance;
+        const edgeY = centerY + Math.sin(radians) * maxDistance;
+        
+        return { x: edgeX, y: edgeY };
       }
 
       // Initialize all trees using GSAP's rotation positioning
@@ -212,19 +257,17 @@
         for (let i = 0; i < totalTrees; i++) {
           const tree = createTreeImage();
           
-          // Add tree to container
           treeContainer.appendChild(tree);
           
-          // Use GSAP to position tree at specific rotation around the circle
           const rotationAngle = (360 / totalTrees) * i;
           
-          // Set initial position (hidden and scaled down)
+          // Set initial position on planet surface (hidden)
           gsap.set(tree, {
-            rotation: rotationAngle + 90, // Add 90 degrees so trunk points toward center
-            transformOrigin: "50% 190px", // Distance from center (200px radius)
+            rotation: rotationAngle + 90,
+            transformOrigin: "50% 190px",
             opacity: 0,
             scale: 0,
-            y: 200 // Move up to the edge of the circle
+            y: -200 // On planet surface
           });
           
           trees.push({
@@ -236,36 +279,81 @@
         }
       }
 
-      // Grow a random tree using GSAP animations
+      // Initialize all oil rigs using GSAP's rotation positioning
+      function initializeOilRigs() {
+        for (let i = 0; i < totalOilRigs; i++) {
+          const oilRig = createOilRigImage();
+          
+          oilRigContainer.appendChild(oilRig);
+          
+          const rotationAngle = (360 / totalOilRigs) * i;
+          
+          // Set initial position on planet surface (hidden)
+          gsap.set(oilRig, {
+            rotation: rotationAngle + 90,
+            transformOrigin: "50% 200px", // Slightly closer to surface due to larger size
+            opacity: 0,
+            scale: 0,
+            y: -205 // Slightly closer to planet surface
+          });
+          
+          oilRigs.push({
+            element: oilRig,
+            index: i,
+            angle: rotationAngle,
+            grown: false
+          });
+        }
+      }
+
+      // Grow a random tree with proper viewport edge animation
       function growRandomTree() {
-        // Find all ungrown trees
         const ungrownTrees = trees.filter(tree => !tree.grown);
         if (ungrownTrees.length === 0) return;
         
-        // Pick a random ungrown tree
         const randomIndex = Math.floor(Math.random() * ungrownTrees.length);
         const treeToGrow = ungrownTrees[randomIndex];
         
-        // Animate tree coming from edge of canvas from its specific direction
+        // Get the tree's world position (accounting for rotation)
+        const containerRect = container.getBoundingClientRect();
+        const containerCenterX = containerRect.left + containerRect.width / 2;
+        const containerCenterY = containerRect.top + containerRect.height / 2;
+        
+        // Calculate the tree's angle relative to current container rotation
+        const currentRotation = gsap.getProperty(container, "rotation") || 0;
+        const absoluteAngle = treeToGrow.angle + currentRotation;
+        
+        // Get viewport edge position for this angle
+        const edgePos = getViewportEdgePosition(absoluteAngle);
+        
+        // Calculate offset from container center to viewport edge
+        const offsetX = edgePos.x - containerCenterX;
+        const offsetY = edgePos.y - containerCenterY;
+        
+        // Convert world coordinates to local tree container coordinates
+        const localOffsetX = offsetX;
+        const localOffsetY = offsetY + 210; // Account for tree container offset
+        
         const tl = gsap.timeline();
         
-        // Start from much further out in the same direction (radial approach)
+        // Start from viewport edge
         gsap.set(treeToGrow.element, {
-          y: -800, // Start much further from canvas edge in its direction
+          x: localOffsetX,
+          y: localOffsetY,
           opacity: 0,
           scale: 0.2
         });
         
-        // First make it visible
+        // Animate to planet surface
         tl.to(treeToGrow.element, {
           opacity: 1,
           duration: 0.3
         })
-        // Then animate it plopping down to the planet surface
         .to(treeToGrow.element, {
-          y: -200, // Land on the planet edge
+          x: 0,
+          y: -200, // Planet surface position
           scale: 1,
-          duration: 1.5,
+          duration: 1.2,
           ease: "bounce.out"
         });
         
@@ -274,23 +362,98 @@
         updateTimeEra();
       }
 
-      // Shrink a random grown tree using GSAP animations
+      // Grow a random oil rig with proper viewport edge animation
+      function growRandomOilRig() {
+        const ungrownOilRigs = oilRigs.filter(oilRig => !oilRig.grown);
+        if (ungrownOilRigs.length === 0) return;
+        
+        const randomIndex = Math.floor(Math.random() * ungrownOilRigs.length);
+        const oilRigToGrow = ungrownOilRigs[randomIndex];
+        
+        // Get the oil rig's world position (accounting for rotation)
+        const containerRect = container.getBoundingClientRect();
+        const containerCenterX = containerRect.left + containerRect.width / 2;
+        const containerCenterY = containerRect.top + containerRect.height / 2;
+        
+        // Calculate the oil rig's angle relative to current container rotation
+        const currentRotation = gsap.getProperty(container, "rotation") || 0;
+        const absoluteAngle = oilRigToGrow.angle + currentRotation;
+        
+        // Get viewport edge position for this angle
+        const edgePos = getViewportEdgePosition(absoluteAngle);
+        
+        // Calculate offset from container center to viewport edge
+        const offsetX = edgePos.x - containerCenterX;
+        const offsetY = edgePos.y - containerCenterY;
+        
+        // Convert world coordinates to local oil rig container coordinates
+        const localOffsetX = offsetX;
+        const localOffsetY = offsetY + 210; // Account for oil rig container offset
+        
+        const tl = gsap.timeline();
+        
+        // Start from viewport edge
+        gsap.set(oilRigToGrow.element, {
+          x: localOffsetX,
+          y: localOffsetY,
+          opacity: 0,
+          scale: 0.2
+        });
+        
+        // Animate to planet surface
+        tl.to(oilRigToGrow.element, {
+          opacity: 1,
+          duration: 0.3
+        })
+        .to(oilRigToGrow.element, {
+          x: 0,
+          y: -205, // Planet surface position
+          scale: 1,
+          duration: 1.2,
+          ease: "bounce.out"
+        });
+        
+        oilRigToGrow.grown = true;
+        currentOilRigCount++;
+        updateTimeEra();
+      }
+
+      // Shrink a random grown tree back to viewport edge
       function shrinkRandomTree() {
-        // Find all grown trees
         const grownTrees = trees.filter(tree => tree.grown);
         if (grownTrees.length === 0) return;
         
-        // Pick a random grown tree
         const randomIndex = Math.floor(Math.random() * grownTrees.length);
         const treeToShrink = grownTrees[randomIndex];
         
-        // Animate tree disappearing back to canvas edge
+        // Get current world position for pickup direction
+        const containerRect = container.getBoundingClientRect();
+        const containerCenterX = containerRect.left + containerRect.width / 2;
+        const containerCenterY = containerRect.top + containerRect.height / 2;
+        
+        const currentRotation = gsap.getProperty(container, "rotation") || 0;
+        const absoluteAngle = treeToShrink.angle + currentRotation;
+        
+        const edgePos = getViewportEdgePosition(absoluteAngle);
+        const offsetX = edgePos.x - containerCenterX;
+        const offsetY = edgePos.y - containerCenterY + 210;
+        
+        // Animate tree being "picked up" to viewport edge
         gsap.to(treeToShrink.element, {
-          y: -650, // Fly away to edge of canvas
+          x: offsetX,
+          y: offsetY,
           opacity: 0,
           scale: 0.1,
-          duration: 1.8,
-          ease: "power2.in"
+          duration: 1.0,
+          ease: "power2.in",
+          onComplete: () => {
+            // Reset position after animation
+            gsap.set(treeToShrink.element, {
+              x: 0,
+              y: -200,
+              scale: 0
+            });
+          }
         });
         
         treeToShrink.grown = false;
@@ -298,31 +461,75 @@
         updateTimeEra();
       }
 
+      // Shrink a random grown oil rig back to viewport edge
+      function shrinkRandomOilRig() {
+        const grownOilRigs = oilRigs.filter(oilRig => oilRig.grown);
+        if (grownOilRigs.length === 0) return;
+        
+        const randomIndex = Math.floor(Math.random() * grownOilRigs.length);
+        const oilRigToShrink = grownOilRigs[randomIndex];
+        
+        // Get current world position for pickup direction
+        const containerRect = container.getBoundingClientRect();
+        const containerCenterX = containerRect.left + containerRect.width / 2;
+        const containerCenterY = containerRect.top + containerRect.height / 2;
+        
+        const currentRotation = gsap.getProperty(container, "rotation") || 0;
+        const absoluteAngle = oilRigToShrink.angle + currentRotation;
+        
+        const edgePos = getViewportEdgePosition(absoluteAngle);
+        const offsetX = edgePos.x - containerCenterX;
+        const offsetY = edgePos.y - containerCenterY + 210;
+        
+        // Animate oil rig being "picked up" to viewport edge
+        gsap.to(oilRigToShrink.element, {
+          x: offsetX,
+          y: offsetY,
+          opacity: 0,
+          scale: 0.1,
+          duration: 1.0,
+          ease: "power2.in",
+          onComplete: () => {
+            // Reset position after animation
+            gsap.set(oilRigToShrink.element, {
+              x: 0,
+              y: -205,
+              scale: 0
+            });
+          }
+        });
+        
+        oilRigToShrink.grown = false;
+        currentOilRigCount--;
+        updateTimeEra();
+      }
+
       // Update the time era display
       function updateTimeEra() {
-        const percentage = currentTreeCount / totalTrees;
+        const treePercentage = currentTreeCount / totalTrees;
+        const oilRigPercentage = currentOilRigCount / totalOilRigs;
         let era = "Beginning";
         let bgColor = "rgba(0, 0, 0, 0.7)";
         
-        if (percentage === 0) {
+        if (treePercentage === 0 && oilRigPercentage === 0) {
           era = "1025 AD";
           bgColor = "rgba(100, 50, 50, 0.7)";
-        } else if (percentage < 0.15) {
+        } else if (treePercentage < 0.15) {
           era = "1500 AD";
           bgColor = "rgba(80, 100, 50, 0.7)";
-        } else if (percentage < 0.35) {
+        } else if (treePercentage < 0.35 || oilRigPercentage === 0) {
           era = "1750 AD";
           bgColor = "rgba(60, 120, 60, 0.7)";
-        } else if (percentage < 0.55) {
+        } else if (treePercentage < 0.55 || oilRigPercentage < 0.67) {
           era = "2025 AD";
           bgColor = "rgba(50, 140, 70, 0.7)";
-        } else if (percentage < 0.75) {
+        } else if (treePercentage < 0.75 || oilRigPercentage < 1) {
           era = "2250 AD";
           bgColor = "rgba(40, 160, 80, 0.7)";
-        } else if (percentage < 0.9) {
+        } else if (treePercentage < 0.9) {
           era = "2500 AD";
           bgColor = "rgba(30, 180, 90, 0.7)";
-        } else if (percentage < 1) {
+        } else if (treePercentage < 1) {
           era = "2750 AD";
           bgColor = "rgba(20, 200, 100, 0.7)";
         } else {
@@ -334,42 +541,57 @@
         gsap.to(timeIndicator, { background: bgColor, duration: 0.5 });
       }
 
+      // Check if oil rigs should start appearing (era 1750+)
+      function shouldOilRigsAppear() {
+        const treePercentage = currentTreeCount / totalTrees;
+        return treePercentage >= 0.35; // 1750 AD era
+      }
+
       // Handle mouse movement
       document.addEventListener('mousemove', (e) => {
         const mouseX = e.clientX;
-        
         const windowWidth = window.innerWidth;
         const leftBoundary = windowWidth * 0.3;
         const rightBoundary = windowWidth * 0.7;
         
-        // Clear existing intervals
         clearInterval(growthInterval);
         clearInterval(shrinkInterval);
         
-        // Reset zones
         leftZone.classList.remove('active');
         centerZone.classList.remove('active');
         rightZone.classList.remove('active');
         
         if (mouseX < leftBoundary) {
-          // Left zone - shrink trees and reverse rotation
           leftZone.classList.add('active');
-          startRotation(-20); // Reverse and fast
-          shrinkInterval = setInterval(shrinkRandomTree, 800);
+          startRotation(-20);
+          shrinkInterval = setInterval(() => {
+            // Prioritize removing oil rigs first, then trees
+            if (Math.random() < 0.6 && currentOilRigCount > 0) {
+              shrinkRandomOilRig();
+            } else {
+              shrinkRandomTree();
+            }
+          }, 800);
         } else if (mouseX > rightBoundary) {
-          // Right zone - grow trees and fast forward rotation
           rightZone.classList.add('active');
-          startRotation(20); // Forward and fast
-          growthInterval = setInterval(growRandomTree, 600);
+          startRotation(20);
+          growthInterval = setInterval(() => {
+            // Add trees first, then oil rigs when appropriate era is reached
+            if (shouldOilRigsAppear() && Math.random() < 0.3 && currentOilRigCount < totalOilRigs) {
+              growRandomOilRig();
+            } else if (currentTreeCount < totalTrees) {
+              growRandomTree();
+            }
+          }, 600);
         } else {
-          // Center zone - neutral slow rotation
           centerZone.classList.add('active');
-          startRotation(60); // Normal speed
+          startRotation(60);
         }
       });
 
       // Initialize everything
       initializeTrees();
+      initializeOilRigs();
       startRotation();
       updateTimeEra();
       
