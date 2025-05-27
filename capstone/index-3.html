@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha512-NhSC1YmyruXifcj/KFRWoC561YpHpc5Jtzgvbuzx5VozKpWvQ+4nXhPdFgmx8xqexRcpAglTj9sIBWINXa8x5w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <title>Interactive World Evolution</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #FFFEEB;
+      height: 100vh;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+      cursor: default; /* Standard cursor */
+    }
+
+    .rotation-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) translateX(0px) translateY(0px);
+      width: 400px;
+      height: 400px;
+    }
+
+    .circle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background-image: url('images/circle-scale.svg'); /* Replace the gradient with your image */
+      background-size: cover;
+      background-position: center;
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.3);
+      z-index: 1;
+    }
+
+    .tree-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) translateX(0px) translateY(210px);
+      width: 400px;
+      height: 400px;
+      z-index: 2;
+    }
+
+    .tree-img {
+      position: absolute;
+      width: 30px;
+      height: 40px;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0;
+    }
+
+    .controls-info {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      color: white;
+      font-size: 14px;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 15px;
+      border-radius: 10px;
+      z-index: 1000;
+      backdrop-filter: blur(10px);
+    }
+
+    .time-indicator {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 15px;
+      border-radius: 10px;
+      z-index: 1000;
+      backdrop-filter: blur(10px);
+    }
+
+    .mouse-zones {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    .zone {
+      position: absolute;
+      opacity: 0.05;
+      transition: opacity 0.8s ease;
+    }
+
+    .zone.left {
+      left: 0;
+      top: 0;
+      width: 30%;
+      height: 100%;
+      background: linear-gradient(to right, rgba(255, 100, 100, 0.3), transparent);
+    }
+
+    .zone.right {
+      right: 0;
+      top: 0;
+      width: 30%;
+      height: 100%;
+      background: linear-gradient(to left, rgba(100, 255, 100, 0.3), transparent);
+    }
+
+    .zone.center {
+      left: 30%;
+      top: 0;
+      width: 40%;
+      height: 100%;
+      background: rgba(100, 100, 255, 0.2);
+    }
+
+    .zone.active {
+      opacity: 0.2;
+    }
+  </style>
+</head>
+<body>
+  <div class="mouse-zones">
+    <div class="zone left" id="leftZone"></div>
+    <div class="zone center" id="centerZone"></div>
+    <div class="zone right" id="rightZone"></div>
+  </div>
+
+  <div class="controls-info">
+    <div><strong>World Evolution Control:</strong></div>
+    <div>Left: Reverse Time (Trees Disappear)</div>
+    <div>Right: Forward Time (Trees Appear)</div>
+    <div>Center: Neutral (Slow Spin)</div>
+  </div>
+
+  <div class="time-indicator" id="timeIndicator">
+    Era: Beginning
+  </div>
+
+  <div class="rotation-container" id="rotationContainer">
+    <div class="circle"></div>
+    <div class="tree-container" id="treeContainer"></div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const container = document.getElementById("rotationContainer");
+      const treeContainer = document.getElementById("treeContainer");
+      const timeIndicator = document.getElementById("timeIndicator");
+      const leftZone = document.getElementById("leftZone");
+      const centerZone = document.getElementById("centerZone");
+      const rightZone = document.getElementById("rightZone");
+      
+      const totalTrees = 34;
+      let trees = [];
+      let currentTreeCount = 0;
+      let rotationTween;
+      let growthInterval;
+      let shrinkInterval;
+
+      // Start the world rotation with GSAP
+      function startRotation(speed = 60) {
+        if (rotationTween) rotationTween.kill();
+        
+        if (speed < 0) {
+          // Counter-clockwise rotation
+          rotationTween = gsap.to(container, {
+            rotation: "-=360",
+            duration: Math.abs(speed),
+            ease: "none",
+            repeat: -1
+          });
+        } else {
+          // Clockwise rotation
+          rotationTween = gsap.to(container, {
+            rotation: "+=360",
+            duration: speed,
+            ease: "none",
+            repeat: -1
+          });
+        }
+      }
+
+      // Create tree image
+      function createTreeImage() {
+        const img = document.createElement("img");
+        img.src = "images/tree-set-03.png";
+        img.className = "tree-img";
+        return img;
+      }
+
+      // Initialize all trees using GSAP's rotation positioning
+      function initializeTrees() {
+        for (let i = 0; i < totalTrees; i++) {
+          const tree = createTreeImage();
+          
+          // Add tree to container
+          treeContainer.appendChild(tree);
+          
+          // Use GSAP to position tree at specific rotation around the circle
+          const rotationAngle = (360 / totalTrees) * i;
+          
+          // Set initial position (hidden and scaled down)
+          gsap.set(tree, {
+            rotation: rotationAngle + 90, // Add 90 degrees so trunk points toward center
+            transformOrigin: "50% 190px", // Distance from center (200px radius)
+            opacity: 0,
+            scale: 0,
+            y: 200 // Move up to the edge of the circle
+          });
+          
+          trees.push({
+            element: tree,
+            index: i,
+            angle: rotationAngle,
+            grown: false
+          });
+        }
+      }
+
+      // Grow a random tree using GSAP animations
+      function growRandomTree() {
+        // Find all ungrown trees
+        const ungrownTrees = trees.filter(tree => !tree.grown);
+        if (ungrownTrees.length === 0) return;
+        
+        // Pick a random ungrown tree
+        const randomIndex = Math.floor(Math.random() * ungrownTrees.length);
+        const treeToGrow = ungrownTrees[randomIndex];
+        
+        // Animate tree coming from edge of canvas from its specific direction
+        const tl = gsap.timeline();
+        
+        // Start from much further out in the same direction (radial approach)
+        gsap.set(treeToGrow.element, {
+          y: -800, // Start much further from canvas edge in its direction
+          opacity: 0,
+          scale: 0.2
+        });
+        
+        // First make it visible
+        tl.to(treeToGrow.element, {
+          opacity: 1,
+          duration: 0.3
+        })
+        // Then animate it plopping down to the planet surface
+        .to(treeToGrow.element, {
+          y: -200, // Land on the planet edge
+          scale: 1,
+          duration: 1.5,
+          ease: "bounce.out"
+        });
+        
+        treeToGrow.grown = true;
+        currentTreeCount++;
+        updateTimeEra();
+      }
+
+      // Shrink a random grown tree using GSAP animations
+      function shrinkRandomTree() {
+        // Find all grown trees
+        const grownTrees = trees.filter(tree => tree.grown);
+        if (grownTrees.length === 0) return;
+        
+        // Pick a random grown tree
+        const randomIndex = Math.floor(Math.random() * grownTrees.length);
+        const treeToShrink = grownTrees[randomIndex];
+        
+        // Animate tree disappearing back to canvas edge
+        gsap.to(treeToShrink.element, {
+          y: -650, // Fly away to edge of canvas
+          opacity: 0,
+          scale: 0.1,
+          duration: 1.8,
+          ease: "power2.in"
+        });
+        
+        treeToShrink.grown = false;
+        currentTreeCount--;
+        updateTimeEra();
+      }
+
+      // Update the time era display
+      function updateTimeEra() {
+        const percentage = currentTreeCount / totalTrees;
+        let era = "Beginning";
+        let bgColor = "rgba(0, 0, 0, 0.7)";
+        
+        if (percentage === 0) {
+          era = "1025 AD";
+          bgColor = "rgba(100, 50, 50, 0.7)";
+        } else if (percentage < 0.15) {
+          era = "1500 AD";
+          bgColor = "rgba(80, 100, 50, 0.7)";
+        } else if (percentage < 0.35) {
+          era = "1750 AD";
+          bgColor = "rgba(60, 120, 60, 0.7)";
+        } else if (percentage < 0.55) {
+          era = "2025 AD";
+          bgColor = "rgba(50, 140, 70, 0.7)";
+        } else if (percentage < 0.75) {
+          era = "2250 AD";
+          bgColor = "rgba(40, 160, 80, 0.7)";
+        } else if (percentage < 0.9) {
+          era = "2500 AD";
+          bgColor = "rgba(30, 180, 90, 0.7)";
+        } else if (percentage < 1) {
+          era = "2750 AD";
+          bgColor = "rgba(20, 200, 100, 0.7)";
+        } else {
+          era = "3050 AD";
+          bgColor = "rgba(10, 220, 120, 0.7)";
+        }
+        
+        timeIndicator.textContent = `${era}`;
+        gsap.to(timeIndicator, { background: bgColor, duration: 0.5 });
+      }
+
+      // Handle mouse movement
+      document.addEventListener('mousemove', (e) => {
+        const mouseX = e.clientX;
+        
+        const windowWidth = window.innerWidth;
+        const leftBoundary = windowWidth * 0.3;
+        const rightBoundary = windowWidth * 0.7;
+        
+        // Clear existing intervals
+        clearInterval(growthInterval);
+        clearInterval(shrinkInterval);
+        
+        // Reset zones
+        leftZone.classList.remove('active');
+        centerZone.classList.remove('active');
+        rightZone.classList.remove('active');
+        
+        if (mouseX < leftBoundary) {
+          // Left zone - shrink trees and reverse rotation
+          leftZone.classList.add('active');
+          startRotation(-20); // Reverse and fast
+          shrinkInterval = setInterval(shrinkRandomTree, 800);
+        } else if (mouseX > rightBoundary) {
+          // Right zone - grow trees and fast forward rotation
+          rightZone.classList.add('active');
+          startRotation(20); // Forward and fast
+          growthInterval = setInterval(growRandomTree, 600);
+        } else {
+          // Center zone - neutral slow rotation
+          centerZone.classList.add('active');
+          startRotation(60); // Normal speed
+        }
+      });
+
+      // Initialize everything
+      initializeTrees();
+      startRotation();
+      updateTimeEra();
+      
+      // Start with a few trees
+      setTimeout(() => {
+        for (let i = 0; i < 4; i++) {
+          setTimeout(growRandomTree, i * 1200);
+        }
+      }, 2000);
+    });
+  </script>
+</body>
+</html>
