@@ -754,7 +754,24 @@ setTimeout(growRandomTree, i * 1200);
   }
 });
 
-// User Test
+// cursor settings
+
+let cursorTimer;
+
+function resetCursorTimer() {
+  document.body.style.cursor = "default";
+
+  clearTimeout(cursorTimer);
+
+  cursorTimer = setTimeout(() => {
+    document.body.style.cursor = "none";
+  }, 6000);
+}
+
+document.addEventListener("mousemove", resetCursorTimer);
+resetCursorTimer();
+
+// user Test
 
 document.addEventListener("DOMContentLoaded", () => {
   const overlay = document.getElementById("userTestOverlay");
@@ -764,6 +781,8 @@ document.addEventListener("DOMContentLoaded", () => {
     overlay.style.display = "none";
   });
 });
+
+
 
 </script>
 </body>
