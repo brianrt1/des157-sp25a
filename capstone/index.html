@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -258,46 +257,88 @@ background: transparent !important;
 opacity: 0.2;
 }
 
-.tutorial-right {
+.tutorial-right-mobile {
 position: absolute;
 height: 100px;
 width: 200px;
-right: 50px;
+right: 30px;
+top: calc(50% + 150px);
+opacity: 0;
+transition: opacity 0.6s ease;
+z-index: 2000;
+}
+
+.tutorial-left-mobile {
+position: absolute;
+height: 100px;
+width: 200px;
+left: 30px;
+top: calc(50% + 150px);
+opacity: 0;
+transition: opacity 0.6s ease;
+z-index: 2000;
+}
+
+.tutorial-center-mobile {
+position: absolute;
+height: 100px;
+width: 200px;
+left: 50%;
+transform: translateX(-50%);
+bottom: 90px;
+opacity: 0;
+transition: opacity 0.6s ease;
+z-index: 2000;
+}
+
+.tutorial-right-desktop {
+position: absolute;
+height: 100px;
+width: 200px;
+right: 200px;
 top: 50%;
-opacity: 1;
+opacity: 0;
 transition: opacity 0.6s ease;
-
+z-index: 2000;
+display: none;
 }
 
-
-.tutorial-left {
-
+.tutorial-left-desktop {
 position: absolute;
 height: 100px;
 width: 200px;
-left: 200px;
+left: 130px;
 top: 50%;
-opacity: 1;
+opacity: 0;
 transition: opacity 0.6s ease;
-
-
+z-index: 2000;
+display: none;
 }
 
-.tutorial-center {
+.tutorial-center-desktop {
 position: absolute;
 height: 100px;
 width: 200px;
-top: 75%;
-margin-left: 50vw;
-opacity: 1;
+left: 50%;
+transform: translateX(-50%);
+bottom: 20px;
+opacity: 0;
 transition: opacity 0.6s ease;
-
+z-index: 2000;
+display: none;
 }
 
-.tutorial-center p, .tutorial-right p, .tutorial-left p {
+.tutorial-center-mobile p, .tutorial-right-mobile p, .tutorial-left-mobile p,
+.tutorial-center-desktop p, .tutorial-right-desktop p, .tutorial-left-desktop p {
 color: rgb(1, 15, 10);
 font-family: "Rock Salt", cursive;
 font-size: 24px;
+opacity: 0;
+}
+
+/* Hide all nav text initially */
+.text, .text-2, .text-3, .text-4, .text-5 {
+opacity: 0;
 }
 
 .overlay {
@@ -578,8 +619,29 @@ animation: fadeOut 0.6s ease forwards;
 
 @media screen and (min-width: 800px) {
 
-.tutorial-right {
-right: 200px;
+.tutorial-right-mobile {
+display: none;
+}
+
+.tutorial-left-mobile {
+display: none;
+}
+
+.tutorial-center-mobile {
+display: none;
+}
+
+.tutorial-right-desktop {
+display: block;
+}
+
+.tutorial-left-desktop {
+display: block;
+}
+
+.tutorial-center-desktop {
+display: block;
+bottom: 95px;
 }
 
 .nav-window {
@@ -620,17 +682,26 @@ right: 200px;
 <div>Center: Neutral (Slow Spin)</div>
 </div>
 
-<!-- tutorial -->
-<div class="tutorial-right">
-<p class="text-2">hover right to go forwards.</p>
-
+<!-- tutorial - Mobile (tap) -->
+<div class="tutorial-right-mobile">
+<p class="text-tutorial-right-mobile">tap right to go forwards.</p>
 </div>
-<div class="tutorial-left">
-<p class="text-2">hover left to go backwards.</p>
-
+<div class="tutorial-left-mobile">
+<p class="text-tutorial-left-mobile">tap left to go backwards.</p>
 </div>
-<div class="tutorial-center">
-<p class="text-2">hover over the center to slow down time.</p>
+<div class="tutorial-center-mobile">
+<p class="text-tutorial-center-mobile">tap over the center to slow down time.</p>
+</div>
+
+<!-- tutorial - Desktop (hover) -->
+<div class="tutorial-right-desktop">
+<p class="text-tutorial-right-desktop">hover right to go forwards.</p>
+</div>
+<div class="tutorial-left-desktop">
+<p class="text-tutorial-left-desktop">hover left to go backwards.</p>
+</div>
+<div class="tutorial-center-desktop">
+<p class="text-tutorial-center-desktop">hover over the center to slow down time.</p>
 </div>
 
 <div id="userTestOverlay" class="overlay">
@@ -822,6 +893,79 @@ right: 200px;
       containers: {}, // Will hold all container references
       intervals: { rotation: null, growth: null, shrink: null }
     };
+
+    // Function to get current tutorial elements (mobile or desktop)
+    function getCurrentTutorialElements() {
+      const isDesktop = window.innerWidth >= 800;
+      
+      if (isDesktop) {
+        return {
+          right: document.querySelector(".tutorial-right-desktop"),
+          left: document.querySelector(".tutorial-left-desktop"), 
+          center: document.querySelector(".tutorial-center-desktop")
+        };
+      } else {
+        return {
+          right: document.querySelector(".tutorial-right-mobile"),
+          left: document.querySelector(".tutorial-left-mobile"), 
+          center: document.querySelector(".tutorial-center-mobile")
+        };
+      }
+    }
+
+    // Function to animate text using SplitText
+    function animateText(selector, staggerAmount = 1) {
+      try {
+        if (typeof gsap === 'undefined' || typeof SplitText === 'undefined') {
+          return;
+        }
+        
+        const element = document.querySelector(selector);
+        if (!element) {
+          return;
+        }
+        
+        // Clear any existing SplitText instances on this element
+        if (element._splitText) {
+          element._splitText.revert();
+        }
+        
+        // Make sure parent element is visible first
+        gsap.set(element, { opacity: 1 });
+        
+        const split = SplitText.create(selector, { type: "chars words lines" });
+        element._splitText = split; // Store reference for cleanup
+        
+        // Set initial state for characters
+        gsap.set(split.chars, { y: 100, autoAlpha: 0 });
+        
+        // Animate in
+        gsap.to(split.chars, {
+          y: 0,
+          autoAlpha: 1,
+          duration: 0.4,
+          stagger: { amount: staggerAmount, from: "left" },
+          ease: "power2.out"
+        });
+        
+      } catch (error) {
+        // Silent error handling
+      }
+    }
+
+    // Function to animate tutorial text when shown
+    function animateTutorialText(element) {
+      const textElement = element.querySelector('p');
+      if (!textElement) return;
+      
+      const className = textElement.className;
+      if (className) {
+        // Add a small delay to ensure element is visible
+        setTimeout(() => {
+          animateText(`.${className}`, 0.8);
+        }, 100);
+      }
+    }
   
     // Function to reset cursor to center
     function resetCursorToCenter() {
@@ -874,13 +1018,11 @@ right: 200px;
     function initializeElements(type) {
       const config = ELEMENTS[type];
       if (!config) {
-        console.error(`Element config for type '${type}' not found`);
         return;
       }
       
       const container = gameState.containers[type];
       if (!container) {
-        console.error(`Container for type '${type}' not found`);
         return;
       }
       
@@ -915,7 +1057,6 @@ right: 200px;
     // Unified function to grow any element type
     function growRandomElement(type) {
       if (!gameState.elements[type] || !Array.isArray(gameState.elements[type])) {
-        console.error(`Elements array for type '${type}' not found or invalid`);
         return;
       }
       
@@ -924,14 +1065,12 @@ right: 200px;
       
       const randomElement = ungrownElements[Math.floor(Math.random() * ungrownElements.length)];
       if (!randomElement || !randomElement.element) {
-        console.error(`Invalid element selected for type '${type}'`);
         return;
       }
       
       const config = ELEMENTS[type];
       const container = document.getElementById("rotationContainer");
       if (!container) {
-        console.error("Rotation container not found");
         return;
       }
       
@@ -1158,9 +1297,6 @@ right: 200px;
         initializeElements('trees');
         initializeElements('cities');
         
-        // Debug: Check that 12 cities were created
-        console.log(`Reinterpretation mode: ${gameState.elements.trees.length} trees and ${gameState.elements.cities.length} cities initialized`);
-        
         setTimeout(() => {
           // Start with more trees initially
           for (let i = 0; i < 12; i++) {
@@ -1273,11 +1409,10 @@ right: 200px;
       }
     }
   
-    // Show navigation overlays
+    // Show navigation overlays - UPDATED with text animation
     function showNav(navName) {
       const nav = document.querySelector(`.nav-${navName}`);
       if (!nav) {
-        console.error(`Navigation element .nav-${navName} not found`);
         return;
       }
       nav.style.display = "flex";
@@ -1287,7 +1422,13 @@ right: 200px;
         opacity: 1,
         duration: 1.2,
         ease: "power2.out",
-        onComplete: () => resetCursorToCenter()
+        onComplete: () => {
+          resetCursorToCenter();
+          // Animate text after nav is fully visible
+          setTimeout(() => {
+            animateText(`.text-${navName}`, 0.4);
+          }, 100);
+        }
       });
     }
   
@@ -1298,7 +1439,6 @@ right: 200px;
       const rightZone = document.getElementById('rightZone');
       
       if (!leftZone || !centerZone || !rightZone) {
-        console.error('Mouse zones not found');
         return;
       }
   
@@ -1499,19 +1639,19 @@ right: 200px;
       setupTutorial();
       setupNavigationButtons();
       setupCursorHiding();
-      setupTextAnimations();
+      
+      // Setup initial text animation for the first nav that's visible
+      setTimeout(() => {
+        animateText('.text', 0.1);
+      }, 500);
       
       console.log("Initialization complete");
     });
   
-    // Tutorial setup
+
+  
+    // Tutorial setup - UPDATED with responsive tutorial elements
     function setupTutorial() {
-      const tutorialElements = {
-        right: document.querySelector(".tutorial-right"),
-        left: document.querySelector(".tutorial-left"), 
-        center: document.querySelector(".tutorial-center")
-      };
-      
       const zones = {
         right: document.getElementById("rightZone"),
         left: document.getElementById("leftZone"),
@@ -1519,43 +1659,122 @@ right: 200px;
       };
       
       let tutorialStep = 0;
+      let currentTutorialElements = getCurrentTutorialElements();
       
-      tutorialElements.right.style.display = "block";
-      tutorialElements.left.style.display = "none";
-      tutorialElements.center.style.display = "none";
+      // Check if tutorial elements exist
+      if (!currentTutorialElements.right || !currentTutorialElements.left || !currentTutorialElements.center) {
+        console.error('Tutorial elements not found:', currentTutorialElements);
+        return;
+      }
       
-      function fadeOut(element) {
-        element.classList.add("fade-out");
+      // Update tutorial elements on resize
+      function updateTutorialElements() {
+        // Hide all current elements safely
+        if (currentTutorialElements.right && currentTutorialElements.right.style) {
+          currentTutorialElements.right.style.display = "none";
+        }
+        if (currentTutorialElements.left && currentTutorialElements.left.style) {
+          currentTutorialElements.left.style.display = "none";
+        }
+        if (currentTutorialElements.center && currentTutorialElements.center.style) {
+          currentTutorialElements.center.style.display = "none";
+        }
+        
+        // Get new elements and reset tutorial
+        currentTutorialElements = getCurrentTutorialElements();
+        tutorialStep = 0;
+        
+        // Show first tutorial element safely
+        if (currentTutorialElements.right && currentTutorialElements.right.style) {
+          currentTutorialElements.right.style.display = "block";
+          currentTutorialElements.right.style.opacity = "1";
+          
+          // Animate the first tutorial text
+          setTimeout(() => {
+            const isDesktop = window.innerWidth >= 800;
+            const textClass = isDesktop ? '.text-tutorial-right-desktop' : '.text-tutorial-right-mobile';
+            animateText(textClass, 0.3);
+          }, 500);
+        }
+      }
+      
+      // Setup resize listener
+      window.addEventListener('resize', updateTutorialElements);
+      
+      // Show first tutorial element
+      if (currentTutorialElements.right) {
+        currentTutorialElements.right.style.display = "block";
+        currentTutorialElements.right.style.opacity = "1";
+      }
+      if (currentTutorialElements.left) {
+        currentTutorialElements.left.style.display = "none";
+      }
+      if (currentTutorialElements.center) {
+        currentTutorialElements.center.style.display = "none";
+      }
+      
+      // Animate the first tutorial text
+      setTimeout(() => {
+        const isDesktop = window.innerWidth >= 800;
+        const textClass = isDesktop ? '.text-tutorial-right-desktop' : '.text-tutorial-right-mobile';
+        animateText(textClass, 0.3);
+      }, 500);
+      
+      function fadeOutAndShowNext(currentElement, nextElement, textClass) {
+        if (!currentElement || !currentElement.style) return;
+        
+        // Clear any existing SplitText before fading out
+        const currentTextElement = currentElement.querySelector('p');
+        if (currentTextElement && currentTextElement._splitText) {
+          currentTextElement._splitText.revert();
+        }
+        
+        currentElement.classList.add("fade-out");
         setTimeout(() => {
-          element.style.display = "none";
-          element.classList.remove("fade-out");
+          currentElement.style.display = "none";
+          currentElement.style.opacity = "0";
+          currentElement.classList.remove("fade-out");
+          
+          if (nextElement && nextElement.style) {
+            nextElement.style.display = "block";
+            nextElement.style.opacity = "1";
+            
+            // Animate the new text
+            setTimeout(() => {
+              if (textClass) {
+                animateText(textClass, 0.3);
+              }
+            }, 50);
+          }
         }, 600);
       }
       
       zones.right.addEventListener("mouseenter", () => {
         if (tutorialStep === 0) {
-          fadeOut(tutorialElements.right);
-          tutorialElements.left.style.display = "block";
+          const isDesktop = window.innerWidth >= 800;
+          const textClass = isDesktop ? '.text-tutorial-left-desktop' : '.text-tutorial-left-mobile';
+          fadeOutAndShowNext(currentTutorialElements.right, currentTutorialElements.left, textClass);
           tutorialStep = 1;
         }
       });
       
       zones.left.addEventListener("mouseenter", () => {
         if (tutorialStep === 1) {
-          fadeOut(tutorialElements.left);
-          tutorialElements.center.style.display = "block";
+          const isDesktop = window.innerWidth >= 800;
+          const textClass = isDesktop ? '.text-tutorial-center-desktop' : '.text-tutorial-center-mobile';
+          fadeOutAndShowNext(currentTutorialElements.left, currentTutorialElements.center, textClass);
           tutorialStep = 2;
         }
       });
       
       zones.center.addEventListener("mouseenter", () => {
         if (tutorialStep === 2) {
-          fadeOut(tutorialElements.center);
+          fadeOutAndShowNext(currentTutorialElements.center, null, '');
           tutorialStep = 3;
         }
       });
     }
-  
+
     // Navigation buttons setup
     function setupNavigationButtons() {
       const navConfigs = [
@@ -1570,12 +1789,7 @@ right: 200px;
         const button = document.querySelector(config.button);
         const nav = document.querySelector(config.nav);
         
-        if (!button) {
-          console.error(`Button not found: ${config.button}`);
-          return;
-        }
-        if (!nav) {
-          console.error(`Nav not found: ${config.nav}`);
+        if (!button || !nav) {
           return;
         }
         
@@ -1597,7 +1811,13 @@ right: 200px;
                     gsap.set(nextNav, { y: window.innerHeight, opacity: 0 });
                     gsap.to(nextNav, {
                       y: 0, opacity: 1, duration: 1.2, ease: "power2.out",
-                      onComplete: () => resetCursorToCenter()
+                      onComplete: () => {
+                        resetCursorToCenter();
+                        // Animate text for the next nav
+                        setTimeout(() => {
+                          animateText('.text-5', 0.4);
+                        }, 200);
+                      }
                     });
                   }
                 }, 100);
@@ -1636,39 +1856,6 @@ right: 200px;
       
       document.addEventListener("mousemove", resetCursorTimer);
       resetCursorTimer();
-    }
-  
-    // Text animations setup
-    function setupTextAnimations() {
-      try {
-        if (typeof gsap === 'undefined' || typeof SplitText === 'undefined') {
-          console.error("GSAP or SplitText not loaded");
-          return;
-        }
-        
-        gsap.registerPlugin(SplitText, TextPlugin);
-        
-        [".text", ".text-2", ".text-3", ".text-4", ".text-5"].forEach(selector => {
-          const element = document.querySelector(selector);
-          if (!element) {
-            console.warn(`Text element not found: ${selector}`);
-            return;
-          }
-          
-          try {
-            const split = SplitText.create(selector, { type: "chars words lines" });
-            gsap.from(split.chars, {
-              y: 100,
-              autoAlpha: 0,
-              stagger: { amount: selector === ".text" ? 0.25 : 1, from: "left" }
-            });
-          } catch (error) {
-            console.error(`Error setting up animation for ${selector}:`, error);
-          }
-        });
-      } catch (error) {
-        console.error("Error in setupTextAnimations:", error);
-      }
     }
   
   })();
