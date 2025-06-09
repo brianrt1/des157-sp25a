@@ -1015,7 +1015,11 @@ right: 200px;
   
     // Start world rotation
     function startRotation(speed = 60) {
-      if (gameState.intervals.rotation) gameState.intervals.rotation.kill();
+      // Clear existing rotation using traditional method
+      if (gameState.intervals.rotation) {
+        clearInterval(gameState.intervals.rotation);
+        gameState.intervals.rotation = null;
+      }
       
       if (speed < 0) {
         gameState.intervals.rotation = gsap.to("#rotationContainer", {
@@ -1036,18 +1040,27 @@ right: 200px;
   
     // Clear all containers and reset state
     function clearAll() {
-      Object.keys(ELEMENTS).forEach(type => {
-        gameState.containers[type].innerHTML = '';
+      // Use traditional for loop instead of Object.keys().forEach()
+      const elementTypes = ['trees', 'cities', 'oilRigs', 'antennas', 'nuclear', 'smokestacks', 'spaceJunk'];
+      
+      for (let i = 0; i < elementTypes.length; i++) {
+        const type = elementTypes[i];
+        if (gameState.containers[type]) {
+          gameState.containers[type].innerHTML = '';
+        }
         gameState.elements[type] = [];
         gameState.counts[type] = 0;
-      });
+      }
     }
   
     // Initialize all element types
     function initializeAll() {
-      Object.keys(ELEMENTS).forEach(type => {
+      const elementTypes = ['trees', 'cities', 'oilRigs', 'antennas', 'nuclear', 'smokestacks', 'spaceJunk'];
+      
+      for (let i = 0; i < elementTypes.length; i++) {
+        const type = elementTypes[i];
         initializeElements(type);
-      });
+      }
     }
   
     // Special functions for reinterpretation mode
@@ -1145,6 +1158,9 @@ right: 200px;
         initializeElements('trees');
         initializeElements('cities');
         
+        // Debug: Check that 12 cities were created
+        console.log(`Reinterpretation mode: ${gameState.elements.trees.length} trees and ${gameState.elements.cities.length} cities initialized`);
+        
         setTimeout(() => {
           // Start with more trees initially
           for (let i = 0; i < 12; i++) {
@@ -1183,10 +1199,18 @@ right: 200px;
     // Time era calculation with automatic progression
     function updateTimeEra() {
       const treePercentage = gameState.counts.trees / ELEMENTS.trees.total;
+      
+      // Check if all industrial types are full using traditional for loop
       const industrialTypes = ['oilRigs', 'antennas', 'nuclear', 'smokestacks', 'spaceJunk'];
-      const allIndustrialFull = industrialTypes.every(type => 
-        gameState.counts[type] >= ELEMENTS[type].total
-      );
+      let allIndustrialFull = true;
+      
+      for (let i = 0; i < industrialTypes.length; i++) {
+        const type = industrialTypes[i];
+        if (gameState.counts[type] < ELEMENTS[type].total) {
+          allIndustrialFull = false;
+          break;
+        }
+      }
       
       let era = "Beginning";
       let bgColor = "rgba(0, 0, 0, 0.7)";
@@ -1195,7 +1219,7 @@ right: 200px;
         era = "A Better Future";
         bgColor = "rgba(0, 150, 0, 0.8)";
       } else {
-        // Era logic simplified
+        // Era logic with traditional if statements
         if (treePercentage === 0 && allIndustrialFull) {
           era = "3050 AD";
           bgColor = "rgba(10, 220, 120, 0.7)";
@@ -1222,7 +1246,8 @@ right: 200px;
       
       // Show navigation at key points
       if (!gameState.splashesDisabled) {
-        if (gameState.counts.trees === 30 && !gameState.navShown.nav2) {
+        // Change trigger to 34 trees (all trees grown)
+        if (gameState.counts.trees === 34 && !gameState.navShown.nav2) {
           showNav('2');
           gameState.navShown.nav2 = true;
         }
@@ -1266,27 +1291,109 @@ right: 200px;
       });
     }
   
-    // Mouse and touch movement handler
-    function handleMovement(e) {
-      // Support both mouse and touch events
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      const windowWidth = window.innerWidth;
-      const leftBoundary = windowWidth * 0.3;
-      const rightBoundary = windowWidth * 0.7;
+    // Setup zone-based interaction (original system)
+    function setupZoneInteraction() {
+      const leftZone = document.getElementById('leftZone');
+      const centerZone = document.getElementById('centerZone');
+      const rightZone = document.getElementById('rightZone');
       
-      // Clear existing intervals safely
-      if (gameState.intervals.growth) clearInterval(gameState.intervals.growth);
-      if (gameState.intervals.shrink) clearInterval(gameState.intervals.shrink);
-      
-      // Remove active classes safely
-      ['leftZone', 'centerZone', 'rightZone'].forEach(id => {
-        const element = document.getElementById(id);
-        if (element) element.classList.remove('active');
-      });
-      
-      if (clientX < leftBoundary) {
-        const leftZone = document.getElementById('leftZone');
-        if (leftZone) leftZone.classList.add('active');
+      if (!leftZone || !centerZone || !rightZone) {
+        console.error('Mouse zones not found');
+        return;
+      }
+  
+      // Clear intervals when mouse leaves zones
+      function clearIntervals() {
+        if (gameState.intervals.growth) {
+          clearInterval(gameState.intervals.growth);
+          gameState.intervals.growth = null;
+        }
+        if (gameState.intervals.shrink) {
+          clearInterval(gameState.intervals.shrink);
+          gameState.intervals.shrink = null;
+        }
+        
+        // Remove active classes
+        leftZone.classList.remove('active');
+        centerZone.classList.remove('active');
+        rightZone.classList.remove('active');
+      }
+  
+      // Right zone: advance time (grow elements)
+      function handleRightZone() {
+        clearIntervals();
+        rightZone.classList.add('active');
+        startRotation(20);
+        
+        if (gameState.isReinterpretationMode) {
+          gameState.intervals.growth = setInterval(() => {
+            const maxTrees = 34;
+            const maxCities = 12;
+            
+            // In reinterpretation mode, grow both trees and cities simultaneously
+            // 70% chance for trees, 30% chance for cities (if both have room to grow)
+            const canGrowTrees = gameState.counts.trees < maxTrees;
+            const canGrowCities = gameState.counts.cities < maxCities;
+            
+            if (canGrowTrees && canGrowCities) {
+              // Both can grow - randomly choose with preference for trees
+              if (Math.random() < 0.7) {
+                growRandomElement('trees');
+              } else {
+                growRandomElement('cities');
+              }
+            } else if (canGrowTrees) {
+              // Only trees can grow
+              growRandomElement('trees');
+            } else if (canGrowCities) {
+              // Only cities can grow
+              growRandomElement('cities');
+            }
+          }, 400);
+        } else {
+          // Normal growth logic using traditional if statements
+          gameState.intervals.growth = setInterval(() => {
+            const treePercentage = gameState.counts.trees / ELEMENTS.trees.total;
+            
+            // Check if all industrial is full using traditional loop
+            const industrialTypes = ['oilRigs', 'antennas', 'nuclear', 'smokestacks', 'spaceJunk'];
+            let allIndustrialFull = true;
+            
+            for (let i = 0; i < industrialTypes.length; i++) {
+              const type = industrialTypes[i];
+              if (gameState.counts[type] < ELEMENTS[type].total) {
+                allIndustrialFull = false;
+                break;
+              }
+            }
+            
+            if (gameState.counts.trees < ELEMENTS.trees.total && !allIndustrialFull) {
+              growRandomElement('trees');
+            } else if (treePercentage >= 1.0 && !allIndustrialFull) {
+              // Grow industrial elements using traditional loop
+              const growOrder = ['oilRigs', 'antennas', 'cities', 'nuclear', 'smokestacks', 'spaceJunk'];
+              
+              for (let i = 0; i < growOrder.length; i++) {
+                const type = growOrder[i];
+                if (gameState.counts[type] < ELEMENTS[type].total) {
+                  growRandomElement(type);
+                  break;
+                }
+              }
+            } else if (allIndustrialFull && gameState.counts.trees > 0) {
+              // Aggressively remove trees once all industrial is built
+              if (Math.random() < 0.9) {
+                shrinkRandomElement('trees');
+              }
+            }
+          }, 600);
+        }
+      }
+  
+      // Left zone: reverse time (shrink elements)
+      function handleLeftZone() {
+        clearIntervals();
+        leftZone.classList.add('active');
         startRotation(-20);
         
         if (gameState.isReinterpretationMode) {
@@ -1294,86 +1401,69 @@ right: 200px;
           return;
         }
         
-        // Shrink elements in reverse order
+        // Shrink elements in reverse order using traditional approach
         gameState.intervals.shrink = setInterval(() => {
           const shrinkOrder = ['spaceJunk', 'smokestacks', 'nuclear', 'cities', 'antennas', 'oilRigs', 'trees'];
-          for (const type of shrinkOrder) {
+          
+          for (let i = 0; i < shrinkOrder.length; i++) {
+            const type = shrinkOrder[i];
             if (gameState.counts[type] > 0) {
               shrinkRandomElement(type);
               break;
             }
           }
         }, 800);
-        
-      } else if (clientX > rightBoundary) {
-        const rightZone = document.getElementById('rightZone');
-        if (rightZone) rightZone.classList.add('active');
-        startRotation(20);
-        
-        if (gameState.isReinterpretationMode) {
-          gameState.intervals.growth = setInterval(() => {
-            // In reinterpretation mode, allow growth up to the reinterpretation totals
-            const maxTrees = 34;
-            const maxCities = 12;
-            
-            if (gameState.counts.trees < maxTrees) {
-              growRandomElement('trees');
-            } else if (gameState.counts.cities < maxCities) {
-              growRandomElement('cities');
-            }
-          }, 400);
-        } else {
-          // Normal growth logic
-          gameState.intervals.growth = setInterval(() => {
-            const treePercentage = gameState.counts.trees / ELEMENTS.trees.total;
-            const industrialTypes = ['oilRigs', 'antennas', 'nuclear', 'smokestacks', 'spaceJunk'];
-            const allIndustrialFull = industrialTypes.every(type => 
-              gameState.counts[type] >= ELEMENTS[type].total
-            );
-            
-            if (gameState.counts.trees < ELEMENTS.trees.total && !allIndustrialFull) {
-              growRandomElement('trees');
-            } else if (treePercentage >= 1.0 && !allIndustrialFull) {
-              // Grow industrial elements
-              const growOrder = ['oilRigs', 'antennas', 'cities', 'nuclear', 'smokestacks', 'spaceJunk'];
-              for (const type of growOrder) {
-                if (gameState.counts[type] < ELEMENTS[type].total) {
-                  growRandomElement(type);
-                  break;
-                }
-              }
-            } else if (allIndustrialFull && gameState.counts.trees > 0) {
-              // Aggressively remove trees once all industrial is built - higher probability
-              if (Math.random() < 0.9) {
-                shrinkRandomElement('trees');
-              }
-            }
-          }, 400); // Faster interval for better progression
-        }
-        
-      } else {
-        const centerZone = document.getElementById('centerZone');
-        if (centerZone) centerZone.classList.add('active');
+      }
+  
+      // Center zone: slow time
+      function handleCenterZone() {
+        clearIntervals();
+        centerZone.classList.add('active');
         startRotation(60);
       }
+  
+      // Mouse events
+      rightZone.addEventListener('mouseenter', handleRightZone);
+      leftZone.addEventListener('mouseenter', handleLeftZone);
+      centerZone.addEventListener('mouseenter', handleCenterZone);
+  
+      // Touch events for mobile
+      rightZone.addEventListener('touchstart', handleRightZone, { passive: true });
+      leftZone.addEventListener('touchstart', handleLeftZone, { passive: true });
+      centerZone.addEventListener('touchstart', handleCenterZone, { passive: true });
+  
+      // Clear intervals when leaving zones
+      leftZone.addEventListener('mouseleave', clearIntervals);
+      centerZone.addEventListener('mouseleave', clearIntervals);
+      rightZone.addEventListener('mouseleave', clearIntervals);
+      
+      // Clear intervals when touch ends
+      leftZone.addEventListener('touchend', clearIntervals, { passive: true });
+      centerZone.addEventListener('touchend', clearIntervals, { passive: true });
+      rightZone.addEventListener('touchend', clearIntervals, { passive: true });
     }
   
     // Main initialization
     document.addEventListener("DOMContentLoaded", () => {
       console.log("DOM loaded, initializing...");
       
-      // Initialize containers with error checking
+      // Initialize containers with error checking using traditional approach
+      const elementTypes = ['trees', 'cities', 'oilRigs', 'antennas', 'nuclear', 'smokestacks', 'spaceJunk'];
       let allContainersFound = true;
-      Object.keys(ELEMENTS).forEach(type => {
-        const container = document.getElementById(ELEMENTS[type].containerID);
+      
+      for (let i = 0; i < elementTypes.length; i++) {
+        const type = elementTypes[i];
+        const containerID = ELEMENTS[type].containerID;
+        const container = document.getElementById(containerID);
+        
         if (!container) {
-          console.error(`Container not found: ${ELEMENTS[type].containerID}`);
+          console.error(`Container not found: ${containerID}`);
           allContainersFound = false;
-          return;
+        } else {
+          gameState.containers[type] = container;
+          gameState.counts[type] = 0;
         }
-        gameState.containers[type] = container;
-        gameState.counts[type] = 0;
-      });
+      }
       
       if (!allContainersFound) {
         console.error("Some containers missing - initialization aborted");
@@ -1401,12 +1491,11 @@ right: 200px;
         }
       }, 2000);
       
-      // Event listeners - support both mouse and touch
-      document.addEventListener('mousemove', handleMovement);
-      document.addEventListener('touchmove', handleMovement, { passive: false });
+      // Event listeners - restore original zone-based interaction
       window.addEventListener('enterReinterpretationMode', enterReinterpretationMode);
       
       // Setup other components
+      setupZoneInteraction();
       setupTutorial();
       setupNavigationButtons();
       setupCursorHiding();
