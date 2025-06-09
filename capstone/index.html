@@ -745,6 +745,35 @@ right: 200px;
 
 <script>
   (function() {
+    // Function to reset mouse/cursor position to center of overlay (global scope)
+    function resetCursorToCenter() {
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+      
+      // Create invisible element at center to trigger hover
+      const centerElement = document.createElement('div');
+      centerElement.style.position = 'fixed';
+      centerElement.style.left = centerX + 'px';
+      centerElement.style.top = centerY + 'px';
+      centerElement.style.width = '1px';
+      centerElement.style.height = '1px';
+      centerElement.style.pointerEvents = 'none';
+      centerElement.style.zIndex = '9999';
+      document.body.appendChild(centerElement);
+      
+      // Simulate mouse position at center
+      const event = new MouseEvent('mousemove', {
+        clientX: centerX,
+        clientY: centerY,
+        bubbles: true
+      });
+      document.dispatchEvent(event);
+      
+      setTimeout(() => {
+        document.body.removeChild(centerElement);
+      }, 100);
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
     const container = document.getElementById("rotationContainer");
     const treeContainer = document.getElementById("treeContainer");
@@ -791,6 +820,92 @@ right: 200px;
     let rotationTween;
     let growthInterval;
     let shrinkInterval;
+
+    // Function to animate existing industrial buildings off the world (for reinterpretation mode entry)
+    function removeIndustrialBuildings() {
+      const industrialElements = [
+        ...oilRigs.filter(item => item.grown),
+        ...antennas.filter(item => item.grown),
+        ...nuclear.filter(item => item.grown),
+        ...smokestacks.filter(item => item.grown),
+        ...spaceJunk.filter(item => item.grown)
+      ];
+
+      industrialElements.forEach((item, index) => {
+        if (item && item.element && item.element.parentNode) {
+          setTimeout(() => {
+            // Get current world position for pickup direction
+            const containerRect = container.getBoundingClientRect();
+            const containerCenterX = containerRect.left + containerRect.width / 2;
+            const containerCenterY = containerRect.top + containerRect.height / 2;
+            const currentRotation = gsap.getProperty(container, "rotation") || 0;
+            const absoluteAngle = item.angle + currentRotation;
+            const edgePos = getViewportEdgePosition(absoluteAngle);
+            const offsetX = edgePos.x - containerCenterX;
+            const offsetY = edgePos.y - containerCenterY + 210;
+
+            gsap.to(item.element, {
+              x: offsetX,
+              y: offsetY,
+              opacity: 0,
+              scale: 0.1,
+              duration: 1.0,
+              ease: "power2.in",
+              onComplete: () => {
+                if (item.element && item.element.parentNode) {
+                  item.element.parentNode.removeChild(item.element);
+                }
+                item.grown = false;
+              }
+            });
+          }, index * 100);
+        }
+      });
+    }
+
+    // Function to animate all elements off the world (for reinterpretation reset)
+    function animateAllElementsOffWorld() {
+      const allElements = [
+        ...trees.filter(item => item.grown),
+        ...oilRigs.filter(item => item.grown),
+        ...antennas.filter(item => item.grown),
+        ...cities.filter(item => item.grown),
+        ...nuclear.filter(item => item.grown),
+        ...smokestacks.filter(item => item.grown),
+        ...spaceJunk.filter(item => item.grown)
+      ];
+
+      allElements.forEach((item, index) => {
+        if (item && item.element && item.element.parentNode) {
+          setTimeout(() => {
+            // Get current world position for pickup direction
+            const containerRect = container.getBoundingClientRect();
+            const containerCenterX = containerRect.left + containerRect.width / 2;
+            const containerCenterY = containerRect.top + containerRect.height / 2;
+            const currentRotation = gsap.getProperty(container, "rotation") || 0;
+            const absoluteAngle = item.angle + currentRotation;
+            const edgePos = getViewportEdgePosition(absoluteAngle);
+            const offsetX = edgePos.x - containerCenterX;
+            const offsetY = edgePos.y - containerCenterY + 210;
+
+            gsap.to(item.element, {
+              x: offsetX,
+              y: offsetY,
+              opacity: 0,
+              scale: 0.1,
+              duration: 1.0,
+              ease: "power2.in",
+              onComplete: () => {
+                if (item.element && item.element.parentNode) {
+                  item.element.parentNode.removeChild(item.element);
+                }
+                item.grown = false;
+              }
+            });
+          }, index * 50);
+        }
+      });
+    }
     
     // Start the world rotation with GSAP
     function startRotation(speed = 60) {
@@ -1072,57 +1187,69 @@ right: 200px;
     splashesDisabled = true;
     totalTrees = 17;
     totalCities = 12;
+
+    // First, animate existing industrial buildings off the world
+    removeIndustrialBuildings();
     
-    // Clear everything and reinitialize
-    clearAllContainers();
-    initializeTrees();
-    initializeCities();
-    // Don't reinitialize industrial elements - they'll despawn
-    
-    // Start spawning trees and cities immediately
+    // Wait for industrial buildings to be removed, then clear and reinitialize
     setTimeout(() => {
-    for (let i = 0; i < 8; i++) { // Start with fewer trees initially
-    setTimeout(growRandomTree, i * 200);
-    }
-    for (let i = 0; i < 6; i++) { // Start with some cities
-    setTimeout(growRandomCity, i * 300 + 1000);
-    }
-    }, 500);
+      // Clear everything and reinitialize
+      clearAllContainers();
+      initializeTrees();
+      initializeCities();
+      // Don't reinitialize industrial elements - they'll despawn
+      
+      // Start spawning trees and cities immediately
+      setTimeout(() => {
+      for (let i = 0; i < 8; i++) { // Start with fewer trees initially
+      setTimeout(growRandomTree, i * 200);
+      }
+      for (let i = 0; i < 6; i++) { // Start with some cities
+      setTimeout(growRandomCity, i * 300 + 1000);
+      }
+      }, 500);
+    }, 1500); // Wait for industrial building removal animations
     }
     
-    // Reset to 3050 AD state (normal flow)
+    // Reset to 3050 AD state (normal flow) - enhanced with animation
     function resetTo3050AD() {
     if (!isReinterpretationMode) return;
     
-    isReinterpretationMode = false;
-    totalTrees = 34;
-    totalCities = 6;
+    // Animate all current elements off the world first
+    animateAllElementsOffWorld();
     
-    // Clear everything and reinitialize to normal
-    clearAllContainers();
-    initializeAllElements();
-    
-    // Set to 3050 AD state (no trees, all industrial)
+    // Wait for animations to complete (same timing as other animations), then reset
     setTimeout(() => {
-    for (let i = 0; i < totalOilRigs; i++) {
-    setTimeout(growRandomOilRig, i * 100);
-    }
-    for (let i = 0; i < totalAntennas; i++) {
-    setTimeout(growRandomAntenna, i * 150);
-    }
-    for (let i = 0; i < totalCities; i++) {
-    setTimeout(growRandomCity, i * 120);
-    }
-    for (let i = 0; i < totalNuclear; i++) {
-    setTimeout(growRandomNuclear, i * 180);
-    }
-    for (let i = 0; i < totalSmokestacks; i++) {
-    setTimeout(growRandomSmokestacks, i * 160);
-    }
-    for (let i = 0; i < totalSpaceJunk; i++) {
-    setTimeout(growRandomSpaceJunk, i * 140);
-    }
-    }, 500);
+      isReinterpretationMode = false;
+      totalTrees = 34;
+      totalCities = 6;
+      
+      // Clear everything and reinitialize to normal
+      clearAllContainers();
+      initializeAllElements();
+      
+      // Set to 3050 AD state (no trees, all industrial)
+      setTimeout(() => {
+      for (let i = 0; i < totalOilRigs; i++) {
+      setTimeout(growRandomOilRig, i * 100);
+      }
+      for (let i = 0; i < totalAntennas; i++) {
+      setTimeout(growRandomAntenna, i * 150);
+      }
+      for (let i = 0; i < totalCities; i++) {
+      setTimeout(growRandomCity, i * 120);
+      }
+      for (let i = 0; i < totalNuclear; i++) {
+      setTimeout(growRandomNuclear, i * 180);
+      }
+      for (let i = 0; i < totalSmokestacks; i++) {
+      setTimeout(growRandomSmokestacks, i * 160);
+      }
+      for (let i = 0; i < totalSpaceJunk; i++) {
+      setTimeout(growRandomSpaceJunk, i * 140);
+      }
+      }, 500);
+    }, 1500); // Wait same amount as industrial building removal animations (1.0s duration + 500ms buffer)
     }
     
     // Initialize all elements (normal mode)
@@ -1776,7 +1903,7 @@ right: 200px;
     }
     }
     
-    // Show nav functions (same as before)
+    // Show nav functions with cursor reset
     function showNav2() {
     const nav2 = document.querySelector(".nav-2");
     nav2.style.display = "flex";
@@ -1788,7 +1915,10 @@ right: 200px;
     y: 0,
     opacity: 1,
     duration: 1.2,
-    ease: "power2.out"
+    ease: "power2.out",
+    onComplete: () => {
+      resetCursorToCenter(); // Reset cursor when overlay is fully visible
+    }
     });
     }
     
@@ -1803,7 +1933,10 @@ right: 200px;
     y: 0,
     opacity: 1,
     duration: 1.2,
-    ease: "power2.out"
+    ease: "power2.out",
+    onComplete: () => {
+      resetCursorToCenter(); // Reset cursor when overlay is fully visible
+    }
     });
     }
     
@@ -1818,7 +1951,10 @@ right: 200px;
     y: 0,
     opacity: 1,
     duration: 1.2,
-    ease: "power2.out"
+    ease: "power2.out",
+    onComplete: () => {
+      resetCursorToCenter(); // Reset cursor when overlay is fully visible
+    }
     });
     }
     
@@ -1833,7 +1969,10 @@ right: 200px;
     y: 0,
     opacity: 1,
     duration: 1.2,
-    ease: "power2.out"
+    ease: "power2.out",
+    onComplete: () => {
+      resetCursorToCenter(); // Reset cursor when overlay is fully visible
+    }
     });
     }
     
@@ -1934,49 +2073,7 @@ right: 200px;
     // Listen for reinterpretation mode event
     window.addEventListener('enterReinterpretationMode', () => {
       console.log("Entering reinterpretation mode...");
-      isReinterpretationMode = true;
-      splashesDisabled = true;
-      totalTrees = 34;
-      totalCities = 12;
-      
-      // Clear all containers
-      treeContainer.innerHTML = '';
-      oilRigContainer.innerHTML = '';
-      antennaContainer.innerHTML = '';
-      cityContainer.innerHTML = '';
-      nuclearContainer.innerHTML = '';
-      smokestacksContainer.innerHTML = '';
-      spaceJunkContainer.innerHTML = '';
-      trees = [];
-      oilRigs = [];
-      antennas = [];
-      cities = [];
-      nuclear = [];
-      smokestacks = [];
-      spaceJunk = [];
-      currentTreeCount = 0;
-      currentOilRigCount = 0;
-      currentAntennaCount = 0;
-      currentCityCount = 0;
-      currentNuclearCount = 0;
-      currentSmokestacksCount = 0;
-      currentSpaceJunkCount = 0;
-      
-      // Reinitialize trees and cities only
-      initializeTrees();
-      initializeCities();
-      
-      // Start spawning trees and cities immediately
-      setTimeout(() => {
-        for (let i = 0; i < 8; i++) { // Start with fewer trees initially
-          setTimeout(growRandomTree, i * 200);
-        }
-        for (let i = 0; i < 6; i++) { // Start with some cities
-          setTimeout(growRandomCity, i * 300 + 1000);
-        }
-      }, 500);
-      
-      updateTimeEra();
+      enterReinterpretationMode();
     });
     
     // Initialize everything
@@ -2132,7 +2229,7 @@ right: 200px;
       })
      });
     
-     // Splash Screens with reinterpretation mode trigger
+     // Splash Screens with reinterpretation mode trigger and cursor reset
      document.addEventListener("DOMContentLoaded", () => {
     
       const startButton = document.querySelector(".nav-window .button");
@@ -2147,6 +2244,7 @@ right: 200px;
       const nav5 = document.querySelector(".nav-5");
       
       startButton.addEventListener("click", () => {
+        resetCursorToCenter(); // Reset cursor position
         gsap.to(nav1, {
           y: -window.innerHeight,
           opacity: 0,
@@ -2159,6 +2257,7 @@ right: 200px;
       });
     
       startButtonNav2.addEventListener("click", () => {
+        resetCursorToCenter(); // Reset cursor position
         gsap.to(nav2, {
           y: -window.innerHeight,
           opacity: 0,
@@ -2171,6 +2270,7 @@ right: 200px;
       });
     
       startButtonNav3.addEventListener("click", () => {
+        resetCursorToCenter(); // Reset cursor position
         gsap.to(nav3, {
           y: -window.innerHeight,
           opacity: 0,
@@ -2183,6 +2283,7 @@ right: 200px;
       });
     
       startButtonNav4.addEventListener("click", () => {
+        resetCursorToCenter(); // Reset cursor position
         gsap.to(nav4, {
           y: -window.innerHeight,
           opacity: 0,
@@ -2201,15 +2302,19 @@ right: 200px;
                 y: 0,
                 opacity: 1,
                 duration: 1.2,
-                ease: "power2.out"
+                ease: "power2.out",
+                onComplete: () => {
+                  resetCursorToCenter(); // Reset cursor when nav-5 is fully visible
+                }
               });
             }, 100);
           }
         });
       });
     
-      // MODIFIED: Nav-5 button triggers reinterpretation mode
+      // Nav-5 button triggers reinterpretation mode with cursor reset
       startButtonNav5.addEventListener("click", () => {
+        resetCursorToCenter(); // Reset cursor position
         gsap.to(nav5, {
           y: -window.innerHeight,
           opacity: 0,
@@ -2225,9 +2330,20 @@ right: 200px;
           }
         });
       });
+
+      // Handle touch events for mobile
+      const handleTouchReset = () => {
+        resetCursorToCenter();
+      };
+
+      startButton.addEventListener("touchstart", handleTouchReset);
+      startButtonNav2.addEventListener("touchstart", handleTouchReset);
+      startButtonNav3.addEventListener("touchstart", handleTouchReset);
+      startButtonNav4.addEventListener("touchstart", handleTouchReset);
+      startButtonNav5.addEventListener("touchstart", handleTouchReset);
     });
   })();
-    </script>
+</script>
 
 </body>
 </html>

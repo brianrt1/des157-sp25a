@@ -1,425 +1,2349 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha512-NhSC1YmyruXifcj/KFRWoC561YpHpc5Jtzgvbuzx5VozKpWvQ+4nXhPdFgmx8xqexRcpAglTj9sIBWINXa8x5w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <title>Interactive World Evolution</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rock+Salt&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha512-NhSC1YmyruXifcj/KFRWoC561YpHpc5Jtzgvbuzx5VozKpWvQ+4nXhPdFgmx8xqexRcpAglTj9sIBWINXa8x5w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/SplitText.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/TextPlugin.min.js"></script>
+<title>The Story</title>
+<style>
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+body {
+background-color: #FFFEEB;
+height: 100vh;
+overflow: hidden;
+font-family: Arial, sans-serif;
+cursor: default;
+}
+.rotation-container {
+position: absolute;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%) translateX(0px) translateY(0px);
+width: 400px;
+height: 400px;
+}
+.circle {
+position: absolute;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+width: 300px;
+height: 300px;
+border-radius: 50%;
+background-image: url('images/circle-scale.svg'); /* Replace the gradient with your image */
+background-size: cover;
+background-position: center;
+box-shadow: 0 0 50px rgba(0, 0, 0, 0.3);
+z-index: 1;
+}
+.tree-container {
+position: absolute;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%) translateX(0px) translateY(210px);
+width: 400px;
+height: 400px;
+z-index: 2;
+}
+.tree-img {
+position: absolute;
+width: 30px;
+height: 40px;
+top: 0;
+left: 50%;
+transform: translateX(-50%);
+opacity: 0;
+}
+.oil-rig-container {
+position: absolute;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%) translateX(0px) translateY(205px);
+width: 400px;
+height: 400px;
+z-index: 3;
+}
+.oil-rig-img {
+position: absolute;
+width: 40px;
+height: 50px;
+top: 0;
+left: 50%;
+transform: translateX(-50%);
+opacity: 0;
+}
+.antenna-container {
+position: absolute;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%) translateX(0px) translateY(205px);
+width: 400px;
+height: 400px;
+z-index: 4;
+}
+.antenna-img {
+position: absolute;
+width: 35px;
+height: 45px;
+top: 0;
+left: 50%;
+transform: translateX(-50%);
+opacity: 0;
+}
+.city-container {
+position: absolute;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%) translateX(0px) translateY(205px);
+width: 400px;
+height: 400px;
+z-index: 5;
+}
+.city-img {
+position: absolute;
+width: 35px;
+height: 45px;
+top: 0;
+left: 50%;
+transform: translateX(-50%);
+opacity: 0;
+}
+.nuclear-container {
+position: absolute;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%) translateX(0px) translateY(205px);
+width: 400px;
+height: 400px;
+z-index: 6;
+}
+.nuclear-img {
+position: absolute;
+width: 35px;
+height: 45px;
+top: 0;
+left: 50%;
+transform: translateX(-50%);
+opacity: 0;
+}
+.smokestacks-container {
+position: absolute;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%) translateX(0px) translateY(205px);
+width: 400px;
+height: 400px;
+z-index: 7;
+}
+.smokestacks-img {
+position: absolute;
+width: 35px;
+height: 45px;
+top: 0;
+left: 50%;
+transform: translateX(-50%);
+opacity: 0;
+}
+.space-junk-container {
+position: absolute;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%) translateX(0px) translateY(205px);
+width: 400px;
+height: 400px;
+z-index: 8;
+}
+.space-junk-img {
+position: absolute;
+width: 35px;
+height: 45px;
+top: 0;
+left: 50%;
+transform: translateX(-50%);
+opacity: 0;
+}
+.controls-info {
+display: none;
+position: fixed;
+top: 20px;
+left: 20px;
+color: white;
+font-size: 14px;
+background: rgba(0, 0, 0, 0.7);
+padding: 15px;
+border-radius: 10px;
+z-index: 1000;
+backdrop-filter: blur(10px);
+}
+.time-indicator {
+display: none;
+position: fixed;
+top: 20px;
+right: 20px;
+color: white;
+font-size: 18px;
+font-weight: bold;
+background: rgba(0, 0, 0, 0.7);
+padding: 15px;
+border-radius: 10px;
+z-index: 1000;
+backdrop-filter: blur(10px);
+}
+.mouse-zones {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+pointer-events: none;
+z-index: 999;
+}
 
-    body {
-      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-      height: 100vh;
-      overflow: hidden;
-      font-family: Arial, sans-serif;
-      cursor: none;
-    }
+.mouse-zones .zone {
+pointer-events: auto;
+}
+.zone {
+position: absolute;
+opacity: 0.05;
+transition: opacity 0.8s ease;
+}
+.zone.left {
+left: 0;
+top: 0;
+width: 30%;
+height: 100%;
+background: linear-gradient(to right, rgba(255, 100, 100, 0.3), transparent);
 
-    .rotation-container {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 400px;
-      height: 400px;
-      animation: rotate 60s linear infinite;
-    }
+/* testing */
+background: transparent !important;
+/* testing */
+}
+.zone.right {
+right: 0;
+top: 0;
+width: 30%;
+height: 100%;
+background: linear-gradient(to left, rgba(100, 255, 100, 0.3), transparent);
 
-    .circle {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 300px;
-      height: 300px;
-      border-radius: 50%;
-      background: linear-gradient(45deg, #8FBC8F, #228B22, #32CD32, #90EE90);
-      box-shadow: 0 0 50px rgba(0, 0, 0, 0.3);
-      z-index: 1;
-    }
+/* testing */
+background: transparent !important;
+/* testing */
+}
+.zone.center {
+left: 30%;
+top: 0;
+width: 40%;
+height: 100%;
+background: rgba(100, 100, 255, 0.2);
 
-    .tree-img {
-      position: absolute;
-      width: 30px;
-      height: 40px;
-      top: calc(50% + 19px);
-      left: calc(50% + 21px);
-      transform-origin: 0 0;
-      transform: translate(-50%, -50%) rotate(var(--angle)) translate(170px, 0) rotate(90deg);
-      transition: all 0.8s ease;
-      z-index: 2;
-      opacity: 0;
-      scale: 0;
-    }
+/* testing */
+background: transparent !important;
+/* testing */
+}
+.zone.active {
+opacity: 0.2;
+}
 
-    /* New plop-down animation - trees fall from outside and land on surface */
-    @keyframes plopDown {
-      0% {
-        opacity: 0;
-        scale: 0.3;
-        transform: translate(-50%, -50%) rotate(var(--angle)) translate(350px, -80px) rotate(90deg);
-        filter: brightness(0.3);
-      }
-      30% {
-        opacity: 0.6;
-        scale: 0.8;
-        transform: translate(-50%, -50%) rotate(var(--angle)) translate(250px, -40px) rotate(90deg);
-      }
-      60% {
-        opacity: 0.9;
-        scale: 1.1;
-        transform: translate(-50%, -50%) rotate(var(--angle)) translate(165px, 5px) rotate(90deg);
-      }
-      80% {
-        scale: 0.95;
-        transform: translate(-50%, -50%) rotate(var(--angle)) translate(168px, -2px) rotate(90deg);
-      }
-      100% {
-        opacity: 1;
-        scale: 1;
-        transform: translate(-50%, -50%) rotate(var(--angle)) translate(170px, 0) rotate(90deg);
-        filter: brightness(1);
-      }
-    }
+.tutorial-right {
+position: absolute;
+height: 100px;
+width: 200px;
+right: 50px;
+top: 50%;
+opacity: 1;
+transition: opacity 0.6s ease;
 
-    /* Updated shrink animation to reverse the plop effect */
-    @keyframes shrinkAway {
-      0% {
-        opacity: 1;
-        scale: 1;
-        transform: translate(-50%, -50%) rotate(var(--angle)) translate(170px, 0) rotate(90deg);
-        filter: brightness(1);
-      }
-      20% {
-        scale: 1.1;
-        transform: translate(-50%, -50%) rotate(var(--angle)) translate(165px, -5px) rotate(90deg);
-      }
-      40% {
-        opacity: 0.8;
-        scale: 0.8;
-        transform: translate(-50%, -50%) rotate(var(--angle)) translate(250px, -40px) rotate(90deg);
-      }
-      100% {
-        opacity: 0;
-        scale: 0.2;
-        transform: translate(-50%, -50%) rotate(var(--angle)) translate(350px, -100px) rotate(90deg);
-        filter: brightness(0.2);
-      }
-    }
+}
 
-    @keyframes rotate {
-      from { transform: translate(-50%, -50%) rotate(0deg); }
-      to { transform: translate(-50%, -50%) rotate(360deg); }
-    }
 
-    @keyframes rotateReverse {
-      from { transform: translate(-50%, -50%) rotate(360deg); }
-      to { transform: translate(-50%, -50%) rotate(0deg); }
-    }
+.tutorial-left {
 
-    .rotation-container.reverse {
-      animation: rotateReverse 60s linear infinite;
-    }
+position: absolute;
+height: 100px;
+width: 200px;
+left: 200px;
+top: 50%;
+opacity: 1;
+transition: opacity 0.6s ease;
 
-    .rotation-container.paused {
-      animation-play-state: paused;
-    }
 
-    .rotation-container.fast-forward {
-      animation-duration: 20s;
-    }
+}
 
-    .rotation-container.fast-reverse {
-      animation: rotateReverse 20s linear infinite;
-    }
+.tutorial-center {
+position: absolute;
+height: 100px;
+width: 200px;
+top: 75%;
+margin-left: 50vw;
+opacity: 1;
+transition: opacity 0.6s ease;
 
-    .controls-info {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      color: white;
-      font-size: 14px;
-      background: rgba(0, 0, 0, 0.7);
-      padding: 15px;
-      border-radius: 10px;
-      z-index: 1000;
-      backdrop-filter: blur(10px);
-    }
+}
 
-    .time-indicator {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      color: white;
-      font-size: 18px;
-      font-weight: bold;
-      background: rgba(0, 0, 0, 0.7);
-      padding: 15px;
-      border-radius: 10px;
-      z-index: 1000;
-      backdrop-filter: blur(10px);
-    }
+.tutorial-center p, .tutorial-right p, .tutorial-left p {
+color: rgb(1, 15, 10);
+font-family: "Rock Salt", cursive;
+font-size: 24px;
+}
 
-    .mouse-zones {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 999;
-    }
+.overlay {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: rgba(30, 30, 30, 0.9);
+color: white;
+display: flex;
+display: none;
+align-items: center;
+justify-content: center;
+z-index: 2000;
+}
 
-    .zone {
-      position: absolute;
-      opacity: 0.05;
-      transition: opacity 0.8s ease;
-    }
+.overlay-content {
+text-align: center;
+max-width: 400px;
+padding: 20px;
+background: #222;
+border-radius: 10px;
+position: relative;
+}
 
-    .zone.left {
-      left: 0;
-      top: 0;
-      width: 30%;
-      height: 100%;
-      background: linear-gradient(to right, rgba(255, 100, 100, 0.3), transparent);
-    }
+.close-btn {
+position: absolute;
+top: 10px;
+right: 15px;
+background: none;
+border: none;
+font-size: 24px;
+color: white;
+cursor: pointer;
+}
 
-    .zone.right {
-      right: 0;
-      top: 0;
-      width: 30%;
-      height: 100%;
-      background: linear-gradient(to left, rgba(100, 255, 100, 0.3), transparent);
-    }
+.overlay h2 {
+margin-bottom: 15px;
+font-size: 24px;
+}
 
-    .zone.center {
-      left: 30%;
-      top: 0;
-      width: 40%;
-      height: 100%;
-      background: rgba(100, 100, 255, 0.2);
-    }
+.overlay ul {
+list-style: none;
+padding: 0;
+text-align: left;
+}
 
-    .zone.active {
-      opacity: 0.2;
-    }
+.overlay li {
+margin: 10px 0;
+font-size: 16px;
+}
 
-    .cursor {
-      position: fixed;
-      width: 20px;
-      height: 20px;
-      border: 2px solid white;
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 1001;
-      transition: all 0.3s ease;
-      background: rgba(255, 255, 255, 0.2);
-      backdrop-filter: blur(5px);
-    }
-  </style>
+.year-indicator {
+display: none;
+position: absolute;
+top: 92%;
+left: 50%;
+transform: translate(-50%, -50%) translateX(0px) translateY(0px);
+width: 300px;
+height: 10px;
+
+
+}
+
+.p1 {
+
+float: left;
+color: black;
+font-family: Arial, Helvetica, sans-serif;
+font-size: 12px;
+
+
+}
+
+.p2 {
+
+float: right;
+color: black;
+font-family: Arial, Helvetica, sans-serif;
+font-size: 12px;
+
+
+}
+
+.timeline-indicator {
+display: none;
+position: absolute;
+top: 95%;
+left: 50%;
+transform: translate(-50%, -50%) translateX(0px) translateY(0px);
+width: 300px;
+height: 10px;
+background-color: black;
+overflow: hidden;
+
+}
+
+.timeline-indicator img {
+
+width: 15px;
+height: 15px;
+position: relative;
+top: -20px;
+left: 0;
+
+}
+
+.red-zone {
+
+position: relative;
+background-color: rgb(230, 61, 14);
+height: 10px;
+width: 100px;
+left: 250px;
+top: -10px;
+}
+
+.yellow-zone {
+
+position: relative;
+background-color: rgb(245, 176, 46);
+height: 10px;
+width: 60px;
+left: 200px;
+}
+
+.ln1 {
+
+position: relative;
+width: 2px;
+height: 12px;
+background-color: white;
+top: -39px;
+left: 25%
+
+}
+
+.ln2 {
+
+position: relative;
+width: 2px;
+height: 12px;
+background-color: white;
+top: -50px;
+left: 50%
+
+}
+
+.ln3 {
+
+position: relative;
+width: 2px;
+height: 12px;
+background-color: white;
+top: -60px;
+left: 75%
+
+}
+
+.nav-1{
+
+  display: flex;
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  background-color: #FFFEEB;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+
+}
+
+.nav-2 {
+
+display: none;
+position: fixed;
+width: 100vw;
+height: 100vh;
+background-color: #FFFEEB;
+justify-content: center;
+align-items: center;
+z-index: 2000;
+
+}
+
+.nav-3 {
+
+display: none;
+position: fixed;
+width: 100vw;
+height: 100vh;
+background-color: #FFFEEB;
+justify-content: center;
+align-items: center;
+z-index: 2000;
+
+}
+
+.nav-4 {
+
+display: none;
+position: fixed;
+width: 100vw;
+height: 100vh;
+background-color: #FFFEEB;
+justify-content: center;
+align-items: center;
+z-index: 2000;
+
+}
+
+.nav-5 {
+
+display: none;
+position: fixed;
+width: 100vw;
+height: 100vh;
+background-color: #FFFEEB;
+justify-content: center;
+align-items: center;
+z-index: 2000;
+
+}
+
+
+
+
+
+.nav-window, .nav-window-2, .nav-window-3, .nav-window-4, .nav-window-5{
+
+  width: 350px;
+  padding: 30px;
+  background-color: white;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  text-align: left;
+
+
+
+}
+
+
+.nav-window .button img,.nav-window-2 .button img, .nav-window-3 .button img, .nav-window-4 .button img, .nav-window-5 .button img {
+  width: 20px;
+  height: auto;
+}
+
+.nav-window .button, .nav-window-2 .button, .nav-window-3 .button, .nav-window-4 .button, .nav-window-5 .button{
+  display: flex;
+  align-items: center;
+  justify-content: right;
+  gap: 10px;
+  cursor: pointer;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  font-weight: bold;
+  color: #222;
+  flex-direction: row;  /* Ensure it's horizontally aligned */
+}
+
+
+
+
+
+@keyframes fadeOut {
+from {
+opacity: 1;
+}
+to {
+opacity: 0;
+}
+}
+
+.fade-out {
+animation: fadeOut 0.6s ease forwards;
+}
+
+@media screen and (min-width: 800px) {
+
+.tutorial-right {
+right: 200px;
+}
+
+.nav-window {
+    width: 700px;
+  }
+
+  .nav-window-2 {
+    width: 700px;
+  }
+
+  .nav-window-3 {
+    width: 700px;
+  }
+
+  .nav-window-4 {
+    width: 700px;
+  }
+
+  .nav-window-5 {
+    width: 700px;
+  }
+
+}
+</style>
 </head>
 <body>
-  <div class="mouse-zones">
-    <div class="zone left" id="leftZone"></div>
-    <div class="zone center" id="centerZone"></div>
-    <div class="zone right" id="rightZone"></div>
+<div class="mouse-zones">
+<div class="zone left" id="leftZone"></div>
+<div class="zone center" id="centerZone"></div>
+<div class="zone right" id="rightZone"></div>
+<!-- test tools -->
+</div>
+<div class="controls-info">
+
+<div><strong>World Evolution Control:</strong></div>
+<div>Left: Reverse Time (Trees Disappear)</div>
+<div>Right: Forward Time (Trees Appear)</div>
+<div>Center: Neutral (Slow Spin)</div>
+</div>
+
+<!-- tutorial -->
+<div class="tutorial-right">
+<p class="text-2">hover right to go forwards.</p>
+
+</div>
+<div class="tutorial-left">
+<p class="text-2">hover left to go backwards.</p>
+
+</div>
+<div class="tutorial-center">
+<p class="text-2">hover over the center to slow down time.</p>
+</div>
+
+<div id="userTestOverlay" class="overlay">
+<div class="overlay-content">
+<button id="closeOverlay" class="close-btn">✕</button>
+<h2>User Test</h2>
+<ul>
+<li>Hover right to go forward in time</li>
+<li>Hover left to go back in time</li>
+<li>Hover center to slow down time</li>
+</ul>
+</div>
+</div>
+
+
+<div class="time-indicator" id="timeIndicator"></div>
+
+<div class="timeline-indicator">
+<div class="yellow-zone"></div>
+<div class="red-zone"></div>
+<img src="images/indicator-1.png"> 
+
+<div class="ln1"></div>
+<div class="ln2"></div>
+<div class="ln3"></div>
+</div>
+
+<div class="year-indicator"> 
+<p class="p1">CO2 timeline</p>
+<p class="p2">2035AD</p>
+
+
+
+</div>
+
+
+
+
+
+<!-- main -->
+<div class="rotation-container" id="rotationContainer">
+<div class="circle"></div>
+<div class="tree-container" id="treeContainer"></div>
+<div class="oil-rig-container" id="oilRigContainer"></div>
+<div class="antenna-container" id="antennaContainer"></div>
+<div class="city-container" id="cityContainer"></div>
+<div class="nuclear-container" id="nuclearContainer"></div>
+<div class="smokestacks-container" id="smokestacksContainer"></div>
+<div class="space-junk-container" id="spaceJunkContainer"></div>
+</div>
+
+<div class="nav-1">
+ 
+<div class="nav-window">
+  <h1 class="text">Our world as invisioned:
+    beginning one thousand years ago.
+  </h1>
+  <div class="button">
+    <p>Start Experience</p><img src="images/arrow-1.svg" alt="arrow">
   </div>
+</div>
+</div>
 
-  <div class="controls-info">
-    <div><strong>World Evolution Control:</strong></div>
-    <div>🠈 Left: Reverse Time (Trees Disappear)</div>
-    <div>🠊 Right: Forward Time (Trees Appear)</div>
-    <div>⬤ Center: Neutral (Slow Spin)</div>
+<div class="nav-2">
+ 
+  <div class="nav-window-2">
+    <h1 class="text-2">Prior to the Industrial Age, CO2 emissions were at their lowest in Earth's history.
+    </h1>
+    <div class="button">
+      <p>Continue</p><img src="images/arrow-1.svg" alt="arrow">
+    </div>
   </div>
+</div>
+</div>
 
-  <div class="time-indicator" id="timeIndicator">
-    Era: Beginning
+<div class="nav-3">
+ 
+  <div class="nav-window-3">
+    <h1 class="text-3">By current times, global warming reached a point of no return.
+    </h1>
+    <div class="button">
+      <p>Continue</p><img src="images/arrow-1.svg" alt="arrow">
+    </div>
   </div>
+</div>
+</div>
 
-  <div class="rotation-container" id="rotationContainer">
-    <div class="circle"></div>
+<div class="nav-4">
+ 
+  <div class="nav-window-4">
+    <h1 class="text-4">A thousand years in the future, global warming and environmental pollution made Earth unsuitable for almost all life.
+    </h1>
+    <div class="button">
+      <p>Continue</p><img src="images/arrow-1.svg" alt="arrow">
+    </div>
   </div>
+</div>
+</div>
 
-  <div class="cursor" id="cursor"></div>
+<div class="nav-5">
+ 
+  <div class="nav-window-5">
+    <h1 class="text-5">If it could be done again, we could learn to live harmoniously with nature instead of causing irreversable damage.
+    </h1>
+    <div class="button">
+      <p>A better future</p><img src="images/arrow-1.svg" alt="arrow">
+    </div>
+  </div>
+</div>
+</div>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const container = document.getElementById("rotationContainer");
-      const timeIndicator = document.getElementById("timeIndicator");
-      const cursor = document.getElementById("cursor");
-      const leftZone = document.getElementById("leftZone");
-      const centerZone = document.getElementById("centerZone");
-      const rightZone = document.getElementById("rightZone");
+
+<script>
+  (function() {
+    // Function to reset mouse/cursor position to center of overlay (global scope)
+    function resetCursorToCenter() {
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
       
-      const totalTrees = 24;
-      let currentTreeCount = 0;
-      let maxTreesReached = 0;
-      let currentState = 'neutral';
-      let trees = [];
-      let treeSpawnOrder = [];
-
-      function createTreeImage() {
-        const img = document.createElement("img");
-        img.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M45 85 L45 60 L40 60 L50 10 L60 60 L55 60 L55 85 Z' fill='%23654321'/%3E%3Ccircle cx='50' cy='25' r='20' fill='%2322AA22'/%3E%3C/svg%3E";
-        img.className = "tree-img";
-        img.style.setProperty('--angle', `0deg`);
-        return img;
-      }
-
-      function createSpawnOrder() {
-        const indices = Array.from({length: totalTrees}, (_, i) => i);
-        for (let i = indices.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [indices[i], indices[j]] = [indices[j], indices[i]];
-        }
-        return indices;
-      }
-
-      function initializeTrees() {
-        treeSpawnOrder = createSpawnOrder();
-        
-        for (let i = 0; i < totalTrees; i++) {
-          const angle = (360 / totalTrees) * i;
-          const tree = createTreeImage();
-          tree.style.setProperty('--angle', `${angle + 100}deg`);
-          trees.push({
-            element: tree,
-            index: i,
-            grown: false,
-            spawnOrder: treeSpawnOrder.indexOf(i)
-          });
-          container.appendChild(tree);
-        }
-        
-        trees.sort((a, b) => a.spawnOrder - b.spawnOrder);
-      }
-
-      function growNextTree() {
-        if (currentTreeCount < totalTrees) {
-          const tree = trees[currentTreeCount];
-          if (!tree.grown) {
-            const randomDelay = Math.random() * 800;
-            setTimeout(() => {
-              tree.element.style.animation = 'plopDown 2s ease-out forwards';
-              tree.grown = true;
-            }, randomDelay);
-            
-            currentTreeCount++;
-            maxTreesReached = Math.max(maxTreesReached, currentTreeCount);
-            updateTimeEra();
-          }
-        }
-      }
-
-      function shrinkLastTree() {
-        if (currentTreeCount > 0) {
-          currentTreeCount--;
-          const tree = trees[currentTreeCount];
-          if (tree.grown) {
-            const randomDelay = Math.random() * 600;
-            setTimeout(() => {
-              tree.element.style.animation = 'shrinkAway 1.8s ease-out forwards';
-              tree.grown = false;
-            }, randomDelay);
-            
-            updateTimeEra();
-          }
-        }
-      }
-
-      function updateTimeEra() {
-        const percentage = currentTreeCount / totalTrees;
-        let era = "Beginning";
-        let bgColor = "rgba(0, 0, 0, 0.7)";
-        
-        if (percentage === 0) {
-          era = "Primordial Earth";
-          bgColor = "rgba(100, 50, 50, 0.7)";
-        } else if (percentage < 0.15) {
-          era = "First Sprouts";
-          bgColor = "rgba(80, 100, 50, 0.7)";
-        } else if (percentage < 0.35) {
-          era = "Growing Wild";
-          bgColor = "rgba(60, 120, 60, 0.7)";
-        } else if (percentage < 0.55) {
-          era = "Young Forest";
-          bgColor = "rgba(50, 140, 70, 0.7)";
-        } else if (percentage < 0.75) {
-          era = "Mature Woodland";
-          bgColor = "rgba(40, 160, 80, 0.7)";
-        } else if (percentage < 0.9) {
-          era = "Ancient Forest";
-          bgColor = "rgba(30, 180, 90, 0.7)";
-        } else if (percentage < 1) {
-          era = "Primeval Paradise";
-          bgColor = "rgba(20, 200, 100, 0.7)";
-        } else {
-          era = "Eden Fulfilled";
-          bgColor = "rgba(10, 220, 120, 0.7)";
-        }
-        
-        timeIndicator.textContent = `${era} (${currentTreeCount}/${totalTrees})`;
-        timeIndicator.style.background = bgColor;
-      }
-
-      let mouseX = 0;
-      let growthInterval;
-      let shrinkInterval;
-
-      document.addEventListener('mousemove', (e) => {
-        mouseX = e.clientX;
-        cursor.style.left = mouseX - 10 + 'px';
-        cursor.style.top = e.clientY - 10 + 'px';
-        
-        const windowWidth = window.innerWidth;
-        const leftBoundary = windowWidth * 0.3;
-        const rightBoundary = windowWidth * 0.7;
-        
-        leftZone.classList.remove('active');
-        centerZone.classList.remove('active');
-        rightZone.classList.remove('active');
-        
-        clearInterval(growthInterval);
-        clearInterval(shrinkInterval);
-        
-        container.classList.remove('fast-forward', 'fast-reverse', 'reverse');
-        
-        if (mouseX < leftBoundary) {
-          leftZone.classList.add('active');
-          container.classList.add('fast-reverse');
-          currentState = 'shrinking';
-          shrinkInterval = setInterval(shrinkLastTree, 800);
-          cursor.style.borderColor = '#ff6b6b';
-          cursor.style.background = 'rgba(255, 107, 107, 0.3)';
-        } else if (mouseX > rightBoundary) {
-          rightZone.classList.add('active');
-          container.classList.add('fast-forward');
-          currentState = 'growing';
-          growthInterval = setInterval(growNextTree, 600);
-          cursor.style.borderColor = '#51cf66';
-          cursor.style.background = 'rgba(81, 207, 102, 0.3)';
-        } else {
-          centerZone.classList.add('active');
-          currentState = 'neutral';
-          cursor.style.borderColor = '#74c0fc';
-          cursor.style.background = 'rgba(116, 192, 252, 0.3)';
-        }
+      // Create invisible element at center to trigger hover
+      const centerElement = document.createElement('div');
+      centerElement.style.position = 'fixed';
+      centerElement.style.left = centerX + 'px';
+      centerElement.style.top = centerY + 'px';
+      centerElement.style.width = '1px';
+      centerElement.style.height = '1px';
+      centerElement.style.pointerEvents = 'none';
+      centerElement.style.zIndex = '9999';
+      document.body.appendChild(centerElement);
+      
+      // Simulate mouse position at center
+      const event = new MouseEvent('mousemove', {
+        clientX: centerX,
+        clientY: centerY,
+        bubbles: true
       });
-
-      initializeTrees();
-      updateTimeEra();
+      document.dispatchEvent(event);
       
       setTimeout(() => {
-        for (let i = 0; i < 4; i++) {
-          setTimeout(growNextTree, i * 1200);
+        document.body.removeChild(centerElement);
+      }, 100);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+    const container = document.getElementById("rotationContainer");
+    const treeContainer = document.getElementById("treeContainer");
+    const oilRigContainer = document.getElementById("oilRigContainer");
+    const antennaContainer = document.getElementById("antennaContainer");
+    const cityContainer = document.getElementById("cityContainer");
+    const nuclearContainer = document.getElementById("nuclearContainer");
+    const smokestacksContainer = document.getElementById("smokestacksContainer");
+    const spaceJunkContainer = document.getElementById("spaceJunkContainer");
+    const timeIndicator = document.getElementById("timeIndicator");
+    const leftZone = document.getElementById("leftZone");
+    const centerZone = document.getElementById("centerZone");
+    const rightZone = document.getElementById("rightZone");
+    
+    // Dynamic totals based on mode
+    let isReinterpretationMode = false;
+    let totalTrees = 34;
+    let totalCities = 6;
+    const totalOilRigs = 3;
+    const totalAntennas = 5;
+    const totalNuclear = 3;
+    const totalSmokestacks = 5;
+    const totalSpaceJunk = 3;
+    
+    let trees = [];
+    let oilRigs = [];
+    let antennas = [];
+    let cities = [];
+    let nuclear = [];
+    let smokestacks = [];
+    let spaceJunk = [];
+    let currentTreeCount = 0;
+    let currentOilRigCount = 0;
+    let currentAntennaCount = 0;
+    let currentCityCount = 0;
+    let currentNuclearCount = 0;
+    let currentSmokestacksCount = 0;
+    let currentSpaceJunkCount = 0;
+    let nav2Shown = false;
+    let nav3Shown = false;
+    let nav4Shown = false;
+    let nav5Shown = false;
+    let splashesDisabled = false; // Flag to disable splash screens
+    let rotationTween;
+    let growthInterval;
+    let shrinkInterval;
+
+    // Function to animate existing industrial buildings off the world (for reinterpretation mode entry)
+    function removeIndustrialBuildings() {
+      const industrialElements = [
+        ...oilRigs.filter(item => item.grown),
+        ...antennas.filter(item => item.grown),
+        ...nuclear.filter(item => item.grown),
+        ...smokestacks.filter(item => item.grown),
+        ...spaceJunk.filter(item => item.grown)
+      ];
+
+      industrialElements.forEach((item, index) => {
+        if (item && item.element && item.element.parentNode) {
+          setTimeout(() => {
+            // Get current world position for pickup direction
+            const containerRect = container.getBoundingClientRect();
+            const containerCenterX = containerRect.left + containerRect.width / 2;
+            const containerCenterY = containerRect.top + containerRect.height / 2;
+            const currentRotation = gsap.getProperty(container, "rotation") || 0;
+            const absoluteAngle = item.angle + currentRotation;
+            const edgePos = getViewportEdgePosition(absoluteAngle);
+            const offsetX = edgePos.x - containerCenterX;
+            const offsetY = edgePos.y - containerCenterY + 210;
+
+            gsap.to(item.element, {
+              x: offsetX,
+              y: offsetY,
+              opacity: 0,
+              scale: 0.1,
+              duration: 1.0,
+              ease: "power2.in",
+              onComplete: () => {
+                if (item.element && item.element.parentNode) {
+                  item.element.parentNode.removeChild(item.element);
+                }
+                item.grown = false;
+              }
+            });
+          }, index * 100);
         }
-      }, 2000);
+      });
+    }
+
+    // Function to animate all elements off the world (for reinterpretation reset)
+    function animateAllElementsOffWorld() {
+      const allElements = [
+        ...trees.filter(item => item.grown),
+        ...oilRigs.filter(item => item.grown),
+        ...antennas.filter(item => item.grown),
+        ...cities.filter(item => item.grown),
+        ...nuclear.filter(item => item.grown),
+        ...smokestacks.filter(item => item.grown),
+        ...spaceJunk.filter(item => item.grown)
+      ];
+
+      allElements.forEach((item, index) => {
+        if (item && item.element && item.element.parentNode) {
+          setTimeout(() => {
+            // Get current world position for pickup direction
+            const containerRect = container.getBoundingClientRect();
+            const containerCenterX = containerRect.left + containerRect.width / 2;
+            const containerCenterY = containerRect.top + containerRect.height / 2;
+            const currentRotation = gsap.getProperty(container, "rotation") || 0;
+            const absoluteAngle = item.angle + currentRotation;
+            const edgePos = getViewportEdgePosition(absoluteAngle);
+            const offsetX = edgePos.x - containerCenterX;
+            const offsetY = edgePos.y - containerCenterY + 210;
+
+            gsap.to(item.element, {
+              x: offsetX,
+              y: offsetY,
+              opacity: 0,
+              scale: 0.1,
+              duration: 1.0,
+              ease: "power2.in",
+              onComplete: () => {
+                if (item.element && item.element.parentNode) {
+                  item.element.parentNode.removeChild(item.element);
+                }
+                item.grown = false;
+              }
+            });
+          }, index * 50);
+        }
+      });
+    }
+    
+    // Start the world rotation with GSAP
+    function startRotation(speed = 60) {
+    if (rotationTween) rotationTween.kill();
+    if (speed < 0) {
+    rotationTween = gsap.to(container, {
+    rotation: "-=360",
+    duration: Math.abs(speed),
+    ease: "none",
+    repeat: -1
     });
-  </script>
+    } else {
+    rotationTween = gsap.to(container, {
+    rotation: "+=360",
+    duration: speed,
+    ease: "none",
+    repeat: -1
+    });
+    }
+    }
+    
+    // Create tree image
+    function createTreeImage() {
+    const img = document.createElement("img");
+    img.src = "images/trees-04.png";
+    img.className = "tree-img";
+    return img;
+    }
+    
+    // Create oil rig image
+    function createOilRigImage() {
+    const img = document.createElement("img");
+    img.src = "images/oil-rig-01.png";
+    img.className = "oil-rig-img";
+    return img;
+    }
+    
+    // Create antenna image
+    function createAntennaImage() {
+    const img = document.createElement("img");
+    img.src = "images/antenna-01.png";
+    img.className = "antenna-img";
+    return img;
+    }
+    
+    // Create city image
+    function createCityImage() {
+    const img = document.createElement("img");
+    img.src = "images/city-1.png";
+    img.className = "city-img";
+    return img;
+    }
+    
+    // Create nuclear image
+    function createNuclearImage() {
+    const img = document.createElement("img");
+    img.src = "images/nuclear-1.png";
+    img.className = "nuclear-img";
+    return img;
+    }
+    
+    // Create smokestacks image
+    function createSmokestacksImage() {
+    const img = document.createElement("img");
+    img.src = "images/smokestacks-1.png";
+    img.className = "smokestacks-img";
+    return img;
+    }
+    
+    // Create space junk image
+    function createSpaceJunkImage() {
+    const img = document.createElement("img");
+    img.src = "images/space-junk-1.png";
+    img.className = "space-junk-img";
+    return img;
+    }
+    
+    // Calculate viewport edge position for a given angle
+    function getViewportEdgePosition(angle) {
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+    const maxDistance = Math.max(window.innerWidth, window.innerHeight);
+    // Convert angle to radians and calculate edge position
+    const radians = (angle - 90) * (Math.PI / 180); // -90 to align with top
+    const edgeX = centerX + Math.cos(radians) * maxDistance;
+    const edgeY = centerY + Math.sin(radians) * maxDistance;
+    return { x: edgeX, y: edgeY };
+    }
+    
+    // Clear all containers
+    function clearAllContainers() {
+    treeContainer.innerHTML = '';
+    oilRigContainer.innerHTML = '';
+    antennaContainer.innerHTML = '';
+    cityContainer.innerHTML = '';
+    nuclearContainer.innerHTML = '';
+    smokestacksContainer.innerHTML = '';
+    spaceJunkContainer.innerHTML = '';
+    trees = [];
+    oilRigs = [];
+    antennas = [];
+    cities = [];
+    nuclear = [];
+    smokestacks = [];
+    spaceJunk = [];
+    currentTreeCount = 0;
+    currentOilRigCount = 0;
+    currentAntennaCount = 0;
+    currentCityCount = 0;
+    currentNuclearCount = 0;
+    currentSmokestacksCount = 0;
+    currentSpaceJunkCount = 0;
+    }
+    
+    // Initialize all trees using GSAP's rotation positioning
+    function initializeTrees() {
+    for (let i = 0; i < totalTrees; i++) {
+    const tree = createTreeImage();
+    treeContainer.appendChild(tree);
+    const rotationAngle = (360 / totalTrees) * i;
+    // Set initial position on planet surface (hidden)
+    gsap.set(tree, {
+    rotation: rotationAngle + 90,
+    transformOrigin: "50% 190px",
+    opacity: 0,
+    scale: 0,
+    y: -200 // On planet surface
+    });
+    trees.push({
+    element: tree,
+    index: i,
+    angle: rotationAngle,
+    grown: false
+    });
+    }
+    }
+    
+    // Initialize all oil rigs using GSAP's rotation positioning
+    function initializeOilRigs() {
+    for (let i = 0; i < totalOilRigs; i++) {
+    const oilRig = createOilRigImage();
+    oilRigContainer.appendChild(oilRig);
+    const rotationAngle = (360 / totalOilRigs) * i;
+    // Set initial position on planet surface (hidden)
+    gsap.set(oilRig, {
+    rotation: rotationAngle + 90,
+    transformOrigin: "50% 200px", // Slightly closer to surface due to larger size
+    opacity: 0,
+    scale: 0,
+    y: -205 // Slightly closer to planet surface
+    });
+    oilRigs.push({
+    element: oilRig,
+    index: i,
+    angle: rotationAngle,
+    grown: false
+    });
+    }
+    }
+    
+    // Initialize all antennas using GSAP's rotation positioning
+    function initializeAntennas() {
+    for (let i = 0; i < totalAntennas; i++) {
+    const antenna = createAntennaImage();
+    antennaContainer.appendChild(antenna);
+    const rotationAngle = (360 / totalAntennas) * i;
+    // Set initial position on planet surface (hidden)
+    gsap.set(antenna, {
+    rotation: rotationAngle + 55,
+    transformOrigin: "50% 195px",
+    opacity: 0,
+    scale: 0,
+    y: -202 // On planet surface
+    });
+    antennas.push({
+    element: antenna,
+    index: i,
+    angle: rotationAngle,
+    grown: false
+    });
+    }
+    }
+    
+    // Initialize all cities using GSAP's rotation positioning
+    function initializeCities() {
+    for (let i = 0; i < totalCities; i++) {
+    const city = createCityImage();
+    cityContainer.appendChild(city);
+    const rotationAngle = (360 / totalCities) * i;
+    // Set initial position on planet surface (hidden)
+    gsap.set(city, {
+    rotation: rotationAngle + 10,
+    transformOrigin: "50% 195px",
+    opacity: 0,
+    scale: 0,
+    y: -202 // On planet surface
+    });
+    cities.push({
+    element: city,
+    index: i,
+    angle: rotationAngle,
+    grown: false
+    });
+    }
+    }
+    
+    // Initialize all nuclear using GSAP's rotation positioning
+    function initializeNuclear() {
+    for (let i = 0; i < totalNuclear; i++) {
+    const nuclearFacility = createNuclearImage();
+    nuclearContainer.appendChild(nuclearFacility);
+    const rotationAngle = (360 / totalNuclear) * i;
+    // Set initial position on planet surface (hidden)
+    gsap.set(nuclearFacility, {
+    rotation: rotationAngle + 40,
+    transformOrigin: "50% 195px",
+    opacity: 0,
+    scale: 0,
+    y: -202 // On planet surface
+    });
+    nuclear.push({
+    element: nuclearFacility,
+    index: i,
+    angle: rotationAngle,
+    grown: false
+    });
+    }
+    }
+    
+    // Initialize all smokestacks using GSAP's rotation positioning
+    function initializeSmokestacks() {
+    for (let i = 0; i < totalSmokestacks; i++) {
+    const smokestack = createSmokestacksImage();
+    smokestacksContainer.appendChild(smokestack);
+    const rotationAngle = (360 / totalSmokestacks) * i;
+    // Set initial position on planet surface (hidden)
+    gsap.set(smokestack, {
+    rotation: rotationAngle + 25,
+    transformOrigin: "50% 195px",
+    opacity: 0,
+    scale: 0,
+    y: -202 // On planet surface
+    });
+    smokestacks.push({
+    element: smokestack,
+    index: i,
+    angle: rotationAngle,
+    grown: false
+    });
+    }
+    }
+    
+    // Initialize all space junk using GSAP's rotation positioning
+    function initializeSpaceJunk() {
+    for (let i = 0; i < totalSpaceJunk; i++) {
+    const junk = createSpaceJunkImage();
+    spaceJunkContainer.appendChild(junk);
+    const rotationAngle = (360 / totalSpaceJunk) * i;
+    // Set initial position on planet surface (hidden)
+    gsap.set(junk, {
+    rotation: rotationAngle + 57,
+    transformOrigin: "50% 195px",
+    opacity: 0,
+    scale: 0,
+    y: -202 // On planet surface
+    });
+    spaceJunk.push({
+    element: junk,
+    index: i,
+    angle: rotationAngle,
+    grown: false
+    });
+    }
+    }
+    
+    // Reinitialize world for reinterpretation mode
+    function enterReinterpretationMode() {
+    isReinterpretationMode = true;
+    splashesDisabled = true;
+    totalTrees = 17;
+    totalCities = 12;
+
+    // First, animate existing industrial buildings off the world
+    removeIndustrialBuildings();
+    
+    // Wait for industrial buildings to be removed, then clear and reinitialize
+    setTimeout(() => {
+      // Clear everything and reinitialize
+      clearAllContainers();
+      initializeTrees();
+      initializeCities();
+      // Don't reinitialize industrial elements - they'll despawn
+      
+      // Start spawning trees and cities immediately
+      setTimeout(() => {
+      for (let i = 0; i < 8; i++) { // Start with fewer trees initially
+      setTimeout(growRandomTree, i * 200);
+      }
+      for (let i = 0; i < 6; i++) { // Start with some cities
+      setTimeout(growRandomCity, i * 300 + 1000);
+      }
+      }, 500);
+    }, 1500); // Wait for industrial building removal animations
+    }
+    
+    // Reset to 3050 AD state (normal flow) - enhanced with animation
+    function resetTo3050AD() {
+    if (!isReinterpretationMode) return;
+    
+    // Animate all current elements off the world first
+    animateAllElementsOffWorld();
+    
+    // Wait for animations to complete (same timing as other animations), then reset
+    setTimeout(() => {
+      isReinterpretationMode = false;
+      totalTrees = 34;
+      totalCities = 6;
+      
+      // Clear everything and reinitialize to normal
+      clearAllContainers();
+      initializeAllElements();
+      
+      // Set to 3050 AD state (no trees, all industrial)
+      setTimeout(() => {
+      for (let i = 0; i < totalOilRigs; i++) {
+      setTimeout(growRandomOilRig, i * 100);
+      }
+      for (let i = 0; i < totalAntennas; i++) {
+      setTimeout(growRandomAntenna, i * 150);
+      }
+      for (let i = 0; i < totalCities; i++) {
+      setTimeout(growRandomCity, i * 120);
+      }
+      for (let i = 0; i < totalNuclear; i++) {
+      setTimeout(growRandomNuclear, i * 180);
+      }
+      for (let i = 0; i < totalSmokestacks; i++) {
+      setTimeout(growRandomSmokestacks, i * 160);
+      }
+      for (let i = 0; i < totalSpaceJunk; i++) {
+      setTimeout(growRandomSpaceJunk, i * 140);
+      }
+      }, 500);
+    }, 1500); // Wait same amount as industrial building removal animations (1.0s duration + 500ms buffer)
+    }
+    
+    // Initialize all elements (normal mode)
+    function initializeAllElements() {
+    initializeTrees();
+    initializeOilRigs();
+    initializeAntennas();
+    initializeCities();
+    initializeNuclear();
+    initializeSmokestacks();
+    initializeSpaceJunk();
+    }
+    
+    // Grow a random tree with proper viewport edge animation
+    function growRandomTree() {
+    const ungrownTrees = trees.filter(tree => !tree.grown);
+    if (ungrownTrees.length === 0) return;
+    const randomIndex = Math.floor(Math.random() * ungrownTrees.length);
+    const treeToGrow = ungrownTrees[randomIndex];
+    // Get the tree's world position (accounting for rotation)
+    const containerRect = container.getBoundingClientRect();
+    const containerCenterX = containerRect.left + containerRect.width / 2;
+    const containerCenterY = containerRect.top + containerRect.height / 2;
+    // Calculate the tree's angle relative to current container rotation
+    const currentRotation = gsap.getProperty(container, "rotation") || 0;
+    const absoluteAngle = treeToGrow.angle + currentRotation;
+    // Get viewport edge position for this angle
+    const edgePos = getViewportEdgePosition(absoluteAngle);
+    // Calculate offset from container center to viewport edge
+    const offsetX = edgePos.x - containerCenterX;
+    const offsetY = edgePos.y - containerCenterY;
+    // Convert world coordinates to local tree container coordinates
+    const localOffsetX = offsetX;
+    const localOffsetY = offsetY + 210; // Account for tree container offset
+    const tl = gsap.timeline();
+    // Start from viewport edge
+    gsap.set(treeToGrow.element, {
+    x: localOffsetX,
+    y: localOffsetY,
+    opacity: 0,
+    scale: 0.2
+    });
+    // Animate to planet surface
+    tl.to(treeToGrow.element, {
+    opacity: 1,
+    duration: 0.3
+    })
+    .to(treeToGrow.element, {
+    x: 0,
+    y: -200, // Planet surface position
+    scale: 1,
+    duration: 1.2,
+    ease: "bounce.out"
+    });
+    treeToGrow.grown = true;
+    currentTreeCount++;
+    updateTimeEra();
+    }
+    
+    // Grow a random oil rig with proper viewport edge animation
+    function growRandomOilRig() {
+    const ungrownOilRigs = oilRigs.filter(oilRig => !oilRig.grown);
+    if (ungrownOilRigs.length === 0) return;
+    const randomIndex = Math.floor(Math.random() * ungrownOilRigs.length);
+    const oilRigToGrow = ungrownOilRigs[randomIndex];
+    // Get the oil rig's world position (accounting for rotation)
+    const containerRect = container.getBoundingClientRect();
+    const containerCenterX = containerRect.left + containerRect.width / 2;
+    const containerCenterY = containerRect.top + containerRect.height / 2;
+    // Calculate the oil rig's angle relative to current container rotation
+    const currentRotation = gsap.getProperty(container, "rotation") || 0;
+    const absoluteAngle = oilRigToGrow.angle + currentRotation;
+    // Get viewport edge position for this angle
+    const edgePos = getViewportEdgePosition(absoluteAngle);
+    // Calculate offset from container center to viewport edge
+    const offsetX = edgePos.x - containerCenterX;
+    const offsetY = edgePos.y - containerCenterY;
+    // Convert world coordinates to local oil rig container coordinates
+    const localOffsetX = offsetX;
+    const localOffsetY = offsetY + 210; // Account for oil rig container offset
+    const tl = gsap.timeline();
+    // Start from viewport edge
+    gsap.set(oilRigToGrow.element, {
+    x: localOffsetX,
+    y: localOffsetY,
+    opacity: 0,
+    scale: 0.2
+    });
+    // Animate to planet surface
+    tl.to(oilRigToGrow.element, {
+    opacity: 1,
+    duration: 0.3
+    })
+    .to(oilRigToGrow.element, {
+    x: 0,
+    y: -205, // Planet surface position
+    scale: 1,
+    duration: 1.2,
+    ease: "bounce.out"
+    });
+    oilRigToGrow.grown = true;
+    currentOilRigCount++;
+    updateTimeEra();
+    }
+    
+    // Grow a random antenna with proper viewport edge animation
+    function growRandomAntenna() {
+    const ungrownAntennas = antennas.filter(antenna => !antenna.grown);
+    if (ungrownAntennas.length === 0) return;
+    const randomIndex = Math.floor(Math.random() * ungrownAntennas.length);
+    const antennaToGrow = ungrownAntennas[randomIndex];
+    // Get the antenna's world position (accounting for rotation)
+    const containerRect = container.getBoundingClientRect();
+    const containerCenterX = containerRect.left + containerRect.width / 2;
+    const containerCenterY = containerRect.top + containerRect.height / 2;
+    // Calculate the antenna's angle relative to current container rotation
+    const currentRotation = gsap.getProperty(container, "rotation") || 0;
+    const absoluteAngle = antennaToGrow.angle + currentRotation;
+    // Get viewport edge position for this angle
+    const edgePos = getViewportEdgePosition(absoluteAngle);
+    // Calculate offset from container center to viewport edge
+    const offsetX = edgePos.x - containerCenterX;
+    const offsetY = edgePos.y - containerCenterY;
+    // Convert world coordinates to local antenna container coordinates
+    const localOffsetX = offsetX;
+    const localOffsetY = offsetY + 210; // Account for antenna container offset
+    const tl = gsap.timeline();
+    // Start from viewport edge
+    gsap.set(antennaToGrow.element, {
+    x: localOffsetX,
+    y: localOffsetY,
+    opacity: 0,
+    scale: 0.2
+    });
+    // Animate to planet surface
+    tl.to(antennaToGrow.element, {
+    opacity: 1,
+    duration: 0.3
+    })
+    .to(antennaToGrow.element, {
+    x: 0,
+    y: -202, // Planet surface position
+    scale: 1,
+    duration: 1.2,
+    ease: "bounce.out"
+    });
+    antennaToGrow.grown = true;
+    currentAntennaCount++;
+    updateTimeEra();
+    }
+    
+    // Grow a random city with proper viewport edge animation
+    function growRandomCity() {
+    const ungrownCities = cities.filter(city => !city.grown);
+    if (ungrownCities.length === 0) return;
+    const randomIndex = Math.floor(Math.random() * ungrownCities.length);
+    const cityToGrow = ungrownCities[randomIndex];
+    // Get the city's world position (accounting for rotation)
+    const containerRect = container.getBoundingClientRect();
+    const containerCenterX = containerRect.left + containerRect.width / 2;
+    const containerCenterY = containerRect.top + containerRect.height / 2;
+    // Calculate the city's angle relative to current container rotation
+    const currentRotation = gsap.getProperty(container, "rotation") || 0;
+    const absoluteAngle = cityToGrow.angle + currentRotation;
+    // Get viewport edge position for this angle
+    const edgePos = getViewportEdgePosition(absoluteAngle);
+    // Calculate offset from container center to viewport edge
+    const offsetX = edgePos.x - containerCenterX;
+    const offsetY = edgePos.y - containerCenterY;
+    // Convert world coordinates to local city container coordinates
+    const localOffsetX = offsetX;
+    const localOffsetY = offsetY + 210; // Account for city container offset
+    const tl = gsap.timeline();
+    // Start from viewport edge
+    gsap.set(cityToGrow.element, {
+    x: localOffsetX,
+    y: localOffsetY,
+    opacity: 0,
+    scale: 0.2
+    });
+    // Animate to planet surface
+    tl.to(cityToGrow.element, {
+    opacity: 1,
+    duration: 0.3
+    })
+    .to(cityToGrow.element, {
+    x: 0,
+    y: -202, // Planet surface position
+    scale: 1,
+    duration: 1.2,
+    ease: "bounce.out"
+    });
+    cityToGrow.grown = true;
+    currentCityCount++;
+    updateTimeEra();
+    }
+    
+    // Grow a random nuclear with proper viewport edge animation
+    function growRandomNuclear() {
+    const ungrownNuclear = nuclear.filter(nuclearFacility => !nuclearFacility.grown);
+    if (ungrownNuclear.length === 0) return;
+    const randomIndex = Math.floor(Math.random() * ungrownNuclear.length);
+    const nuclearToGrow = ungrownNuclear[randomIndex];
+    // Get the nuclear's world position (accounting for rotation)
+    const containerRect = container.getBoundingClientRect();
+    const containerCenterX = containerRect.left + containerRect.width / 2;
+    const containerCenterY = containerRect.top + containerRect.height / 2;
+    // Calculate the nuclear's angle relative to current container rotation
+    const currentRotation = gsap.getProperty(container, "rotation") || 0;
+    const absoluteAngle = nuclearToGrow.angle + currentRotation;
+    // Get viewport edge position for this angle
+    const edgePos = getViewportEdgePosition(absoluteAngle);
+    // Calculate offset from container center to viewport edge
+    const offsetX = edgePos.x - containerCenterX;
+    const offsetY = edgePos.y - containerCenterY;
+    // Convert world coordinates to local nuclear container coordinates
+    const localOffsetX = offsetX;
+    const localOffsetY = offsetY + 210; // Account for nuclear container offset
+    const tl = gsap.timeline();
+    // Start from viewport edge
+    gsap.set(nuclearToGrow.element, {
+    x: localOffsetX,
+    y: localOffsetY,
+    opacity: 0,
+    scale: 0.2
+    });
+    // Animate to planet surface
+    tl.to(nuclearToGrow.element, {
+    opacity: 1,
+    duration: 0.3
+    })
+    .to(nuclearToGrow.element, {
+    x: 0,
+    y: -202, // Planet surface position
+    scale: 1,
+    duration: 1.2,
+    ease: "bounce.out"
+    });
+    nuclearToGrow.grown = true;
+    currentNuclearCount++;
+    updateTimeEra();
+    }
+    
+    // Grow a random smokestacks with proper viewport edge animation
+    function growRandomSmokestacks() {
+    const ungrownSmokestacks = smokestacks.filter(smokestack => !smokestack.grown);
+    if (ungrownSmokestacks.length === 0) return;
+    const randomIndex = Math.floor(Math.random() * ungrownSmokestacks.length);
+    const smokestacksToGrow = ungrownSmokestacks[randomIndex];
+    // Get the smokestacks's world position (accounting for rotation)
+    const containerRect = container.getBoundingClientRect();
+    const containerCenterX = containerRect.left + containerRect.width / 2;
+    const containerCenterY = containerRect.top + containerRect.height / 2;
+    // Calculate the smokestacks's angle relative to current container rotation
+    const currentRotation = gsap.getProperty(container, "rotation") || 0;
+    const absoluteAngle = smokestacksToGrow.angle + currentRotation;
+    // Get viewport edge position for this angle
+    const edgePos = getViewportEdgePosition(absoluteAngle);
+    // Calculate offset from container center to viewport edge
+    const offsetX = edgePos.x - containerCenterX;
+    const offsetY = edgePos.y - containerCenterY;
+    // Convert world coordinates to local smokestacks container coordinates
+    const localOffsetX = offsetX;
+    const localOffsetY = offsetY + 210; // Account for smokestacks container offset
+    const tl = gsap.timeline();
+    // Start from viewport edge
+    gsap.set(smokestacksToGrow.element, {
+    x: localOffsetX,
+    y: localOffsetY,
+    opacity: 0,
+    scale: 0.2
+    });
+    // Animate to planet surface
+    tl.to(smokestacksToGrow.element, {
+    opacity: 1,
+    duration: 0.3
+    })
+    .to(smokestacksToGrow.element, {
+    x: 0,
+    y: -202, // Planet surface position
+    scale: 1,
+    duration: 1.2,
+    ease: "bounce.out"
+    });
+    smokestacksToGrow.grown = true;
+    currentSmokestacksCount++;
+    updateTimeEra();
+    }
+    
+    // Grow a random space junk with proper viewport edge animation
+    function growRandomSpaceJunk() {
+    const ungrownSpaceJunk = spaceJunk.filter(junk => !junk.grown);
+    if (ungrownSpaceJunk.length === 0) return;
+    const randomIndex = Math.floor(Math.random() * ungrownSpaceJunk.length);
+    const spaceJunkToGrow = ungrownSpaceJunk[randomIndex];
+    // Get the space junk's world position (accounting for rotation)
+    const containerRect = container.getBoundingClientRect();
+    const containerCenterX = containerRect.left + containerRect.width / 2;
+    const containerCenterY = containerRect.top + containerRect.height / 2;
+    // Calculate the space junk's angle relative to current container rotation
+    const currentRotation = gsap.getProperty(container, "rotation") || 0;
+    const absoluteAngle = spaceJunkToGrow.angle + currentRotation;
+    // Get viewport edge position for this angle
+    const edgePos = getViewportEdgePosition(absoluteAngle);
+    // Calculate offset from container center to viewport edge
+    const offsetX = edgePos.x - containerCenterX;
+    const offsetY = edgePos.y - containerCenterY;
+    // Convert world coordinates to local space junk container coordinates
+    const localOffsetX = offsetX;
+    const localOffsetY = offsetY + 210; // Account for space junk container offset
+    const tl = gsap.timeline();
+    // Start from viewport edge
+    gsap.set(spaceJunkToGrow.element, {
+    x: localOffsetX,
+    y: localOffsetY,
+    opacity: 0,
+    scale: 0.2
+    });
+    // Animate to planet surface
+    tl.to(spaceJunkToGrow.element, {
+    opacity: 1,
+    duration: 0.3
+    })
+    .to(spaceJunkToGrow.element, {
+    x: 0,
+    y: -202, // Planet surface position
+    scale: 1,
+    duration: 1.2,
+    ease: "bounce.out"
+    });
+    spaceJunkToGrow.grown = true;
+    currentSpaceJunkCount++;
+    updateTimeEra();
+    }
+    
+    // Shrink functions (same as before but work with dynamic arrays)
+    function shrinkRandomTree() {
+    const grownTrees = trees.filter(tree => tree.grown);
+    if (grownTrees.length === 0) return;
+    const randomIndex = Math.floor(Math.random() * grownTrees.length);
+    const treeToShrink = grownTrees[randomIndex];
+    // Get current world position for pickup direction
+    const containerRect = container.getBoundingClientRect();
+    const containerCenterX = containerRect.left + containerRect.width / 2;
+    const containerCenterY = containerRect.top + containerRect.height / 2;
+    const currentRotation = gsap.getProperty(container, "rotation") || 0;
+    const absoluteAngle = treeToShrink.angle + currentRotation;
+    const edgePos = getViewportEdgePosition(absoluteAngle);
+    const offsetX = edgePos.x - containerCenterX;
+    const offsetY = edgePos.y - containerCenterY + 210;
+    // Animate tree being "picked up" to viewport edge
+    gsap.to(treeToShrink.element, {
+    x: offsetX,
+    y: offsetY,
+    opacity: 0,
+    scale: 0.1,
+    duration: 1.0,
+    ease: "power2.in",
+    onComplete: () => {
+    // Reset position after animation
+    gsap.set(treeToShrink.element, {
+    x: 0,
+    y: -200,
+    scale: 0
+    });
+    }
+    });
+    treeToShrink.grown = false;
+    currentTreeCount--;
+    updateTimeEra();
+    }
+    
+    // Shrink functions for industrial elements (same pattern)
+    function shrinkRandomOilRig() {
+    const grownOilRigs = oilRigs.filter(oilRig => oilRig.grown);
+    if (grownOilRigs.length === 0) return;
+    const randomIndex = Math.floor(Math.random() * grownOilRigs.length);
+    const oilRigToShrink = grownOilRigs[randomIndex];
+    const containerRect = container.getBoundingClientRect();
+    const containerCenterX = containerRect.left + containerRect.width / 2;
+    const containerCenterY = containerRect.top + containerRect.height / 2;
+    const currentRotation = gsap.getProperty(container, "rotation") || 0;
+    const absoluteAngle = oilRigToShrink.angle + currentRotation;
+    const edgePos = getViewportEdgePosition(absoluteAngle);
+    const offsetX = edgePos.x - containerCenterX;
+    const offsetY = edgePos.y - containerCenterY + 210;
+    gsap.to(oilRigToShrink.element, {
+    x: offsetX,
+    y: offsetY,
+    opacity: 0,
+    scale: 0.1,
+    duration: 1.0,
+    ease: "power2.in",
+    onComplete: () => {
+    gsap.set(oilRigToShrink.element, {
+    x: 0,
+    y: -205,
+    scale: 0
+    });
+    }
+    });
+    oilRigToShrink.grown = false;
+    currentOilRigCount--;
+    updateTimeEra();
+    }
+    
+    function shrinkRandomAntenna() {
+    const grownAntennas = antennas.filter(antenna => antenna.grown);
+    if (grownAntennas.length === 0) return;
+    const randomIndex = Math.floor(Math.random() * grownAntennas.length);
+    const antennaToShrink = grownAntennas[randomIndex];
+    const containerRect = container.getBoundingClientRect();
+    const containerCenterX = containerRect.left + containerRect.width / 2;
+    const containerCenterY = containerRect.top + containerRect.height / 2;
+    const currentRotation = gsap.getProperty(container, "rotation") || 0;
+    const absoluteAngle = antennaToShrink.angle + currentRotation;
+    const edgePos = getViewportEdgePosition(absoluteAngle);
+    const offsetX = edgePos.x - containerCenterX;
+    const offsetY = edgePos.y - containerCenterY + 210;
+    gsap.to(antennaToShrink.element, {
+    x: offsetX,
+    y: offsetY,
+    opacity: 0,
+    scale: 0.1,
+    duration: 1.0,
+    ease: "power2.in",
+    onComplete: () => {
+    gsap.set(antennaToShrink.element, {
+    x: 0,
+    y: -202,
+    scale: 0
+    });
+    }
+    });
+    antennaToShrink.grown = false;
+    currentAntennaCount--;
+    updateTimeEra();
+    }
+    
+    function shrinkRandomCity() {
+    const grownCities = cities.filter(city => city.grown);
+    if (grownCities.length === 0) return;
+    const randomIndex = Math.floor(Math.random() * grownCities.length);
+    const cityToShrink = grownCities[randomIndex];
+    const containerRect = container.getBoundingClientRect();
+    const containerCenterX = containerRect.left + containerRect.width / 2;
+    const containerCenterY = containerRect.top + containerRect.height / 2;
+    const currentRotation = gsap.getProperty(container, "rotation") || 0;
+    const absoluteAngle = cityToShrink.angle + currentRotation;
+    const edgePos = getViewportEdgePosition(absoluteAngle);
+    const offsetX = edgePos.x - containerCenterX;
+    const offsetY = edgePos.y - containerCenterY + 210;
+    gsap.to(cityToShrink.element, {
+    x: offsetX,
+    y: offsetY,
+    opacity: 0,
+    scale: 0.1,
+    duration: 1.0,
+    ease: "power2.in",
+    onComplete: () => {
+    gsap.set(cityToShrink.element, {
+    x: 0,
+    y: -202,
+    scale: 0
+    });
+    }
+    });
+    cityToShrink.grown = false;
+    currentCityCount--;
+    updateTimeEra();
+    }
+    
+    function shrinkRandomNuclear() {
+    const grownNuclear = nuclear.filter(nuclearFacility => nuclearFacility.grown);
+    if (grownNuclear.length === 0) return;
+    const randomIndex = Math.floor(Math.random() * grownNuclear.length);
+    const nuclearToShrink = grownNuclear[randomIndex];
+    const containerRect = container.getBoundingClientRect();
+    const containerCenterX = containerRect.left + containerRect.width / 2;
+    const containerCenterY = containerRect.top + containerRect.height / 2;
+    const currentRotation = gsap.getProperty(container, "rotation") || 0;
+    const absoluteAngle = nuclearToShrink.angle + currentRotation;
+    const edgePos = getViewportEdgePosition(absoluteAngle);
+    const offsetX = edgePos.x - containerCenterX;
+    const offsetY = edgePos.y - containerCenterY + 210;
+    gsap.to(nuclearToShrink.element, {
+    x: offsetX,
+    y: offsetY,
+    opacity: 0,
+    scale: 0.1,
+    duration: 1.0,
+    ease: "power2.in",
+    onComplete: () => {
+    gsap.set(nuclearToShrink.element, {
+    x: 0,
+    y: -202,
+    scale: 0
+    });
+    }
+    });
+    nuclearToShrink.grown = false;
+    currentNuclearCount--;
+    updateTimeEra();
+    }
+    
+    function shrinkRandomSmokestacks() {
+    const grownSmokestacks = smokestacks.filter(smokestack => smokestack.grown);
+    if (grownSmokestacks.length === 0) return;
+    const randomIndex = Math.floor(Math.random() * grownSmokestacks.length);
+    const smokestacksToShrink = grownSmokestacks[randomIndex];
+    const containerRect = container.getBoundingClientRect();
+    const containerCenterX = containerRect.left + containerRect.width / 2;
+    const containerCenterY = containerRect.top + containerRect.height / 2;
+    const currentRotation = gsap.getProperty(container, "rotation") || 0;
+    const absoluteAngle = smokestacksToShrink.angle + currentRotation;
+    const edgePos = getViewportEdgePosition(absoluteAngle);
+    const offsetX = edgePos.x - containerCenterX;
+    const offsetY = edgePos.y - containerCenterY + 210;
+    gsap.to(smokestacksToShrink.element, {
+    x: offsetX,
+    y: offsetY,
+    opacity: 0,
+    scale: 0.1,
+    duration: 1.0,
+    ease: "power2.in",
+    onComplete: () => {
+    gsap.set(smokestacksToShrink.element, {
+    x: 0,
+    y: -202,
+    scale: 0
+    });
+    }
+    });
+    smokestacksToShrink.grown = false;
+    currentSmokestacksCount--;
+    updateTimeEra();
+    }
+    
+    function shrinkRandomSpaceJunk() {
+    const grownSpaceJunk = spaceJunk.filter(junk => junk.grown);
+    if (grownSpaceJunk.length === 0) return;
+    const randomIndex = Math.floor(Math.random() * grownSpaceJunk.length);
+    const spaceJunkToShrink = grownSpaceJunk[randomIndex];
+    const containerRect = container.getBoundingClientRect();
+    const containerCenterX = containerRect.left + containerRect.width / 2;
+    const containerCenterY = containerRect.top + containerRect.height / 2;
+    const currentRotation = gsap.getProperty(container, "rotation") || 0;
+    const absoluteAngle = spaceJunkToShrink.angle + currentRotation;
+    const edgePos = getViewportEdgePosition(absoluteAngle);
+    const offsetX = edgePos.x - containerCenterX;
+    const offsetY = edgePos.y - containerCenterY + 210;
+    gsap.to(spaceJunkToShrink.element, {
+    x: offsetX,
+    y: offsetY,
+    opacity: 0,
+    scale: 0.1,
+    duration: 1.0,
+    ease: "power2.in",
+    onComplete: () => {
+    gsap.set(spaceJunkToShrink.element, {
+    x: 0,
+    y: -202,
+    scale: 0
+    });
+    }
+    });
+    spaceJunkToShrink.grown = false;
+    currentSpaceJunkCount--;
+    updateTimeEra();
+    }
+    
+    // Update the time era display
+    function updateTimeEra() {
+    const treePercentage = currentTreeCount / totalTrees;
+    const oilRigPercentage = currentOilRigCount / totalOilRigs;
+    const antennaPercentage = currentAntennaCount / totalAntennas;
+    const cityPercentage = currentCityCount / totalCities;
+    const nuclearPercentage = currentNuclearCount / totalNuclear;
+    const smokestacksPercentage = currentSmokestacksCount / totalSmokestacks;
+    const spaceJunkPercentage = currentSpaceJunkCount / totalSpaceJunk;
+    let era = "Beginning";
+    let bgColor = "rgba(0, 0, 0, 0.7)";
+    
+    // Special era for reinterpretation mode
+    if (isReinterpretationMode) {
+    era = "A Better Future";
+    bgColor = "rgba(0, 150, 0, 0.8)";
+    } else {
+    // Normal era logic
+    if (treePercentage === 0 && oilRigPercentage >= 1 && antennaPercentage >= 1 && cityPercentage >= 1 && nuclearPercentage >= 1 && smokestacksPercentage >= 1 && spaceJunkPercentage >= 1) {
+    era = "3050 AD";
+    bgColor = "rgba(10, 220, 120, 0.7)";
+    } else if (treePercentage > 0 && treePercentage < 0.5 && oilRigPercentage >= 1 && antennaPercentage >= 1 && cityPercentage >= 1 && nuclearPercentage >= 1 && smokestacksPercentage >= 1 && spaceJunkPercentage >= 1) {
+    era = "2750 AD";
+    bgColor = "rgba(20, 200, 100, 0.7)";
+    } else if (treePercentage >= 0.5 && treePercentage < 1.0 && oilRigPercentage >= 1 && antennaPercentage >= 1 && cityPercentage >= 1 && nuclearPercentage >= 1 && smokestacksPercentage >= 1 && spaceJunkPercentage >= 1) {
+    era = "2500 AD";
+    bgColor = "rgba(30, 180, 90, 0.7)";
+    } else if (treePercentage >= 1.0 && oilRigPercentage >= 1 && antennaPercentage >= 1 && cityPercentage >= 1 && nuclearPercentage >= 1 && smokestacksPercentage >= 1 && spaceJunkPercentage >= 1) {
+    era = "2250 AD";
+    bgColor = "rgba(40, 160, 80, 0.7)";
+    } else if (treePercentage >= 1.0 && (oilRigPercentage > 0 || antennaPercentage > 0 || cityPercentage > 0 || nuclearPercentage > 0 || smokestacksPercentage > 0 || spaceJunkPercentage > 0)) {
+    era = "2025 AD";
+    bgColor = "rgba(50, 140, 70, 0.7)";
+    } else if (treePercentage >= 1.0 && oilRigPercentage === 0 && antennaPercentage === 0 && cityPercentage === 0 && nuclearPercentage === 0 && smokestacksPercentage === 0 && spaceJunkPercentage === 0) {
+    era = "1750 AD";
+    bgColor = "rgba(60, 120, 60, 0.7)";
+    } else if (treePercentage >= 0.35 && treePercentage < 1.0 && oilRigPercentage === 0 && antennaPercentage === 0 && cityPercentage === 0 && nuclearPercentage === 0 && smokestacksPercentage === 0 && spaceJunkPercentage === 0) {
+    era = "1500 AD";
+    bgColor = "rgba(80, 100, 50, 0.7)";
+    } else if (treePercentage > 0 && treePercentage < 0.35 && oilRigPercentage === 0 && antennaPercentage === 0 && cityPercentage === 0 && nuclearPercentage === 0 && smokestacksPercentage === 0 && spaceJunkPercentage === 0) {
+    era = "1300 AD";
+    bgColor = "rgba(90, 70, 50, 0.7)";
+    } else if (treePercentage === 0 && oilRigPercentage === 0 && antennaPercentage === 0 && cityPercentage === 0 && nuclearPercentage === 0 && smokestacksPercentage === 0 && spaceJunkPercentage === 0) {
+    era = "1050 AD";
+    bgColor = "rgba(100, 50, 50, 0.7)";
+    }
+    }
+    
+    timeIndicator.textContent = `${era}`;
+    gsap.to(timeIndicator, { background: bgColor, duration: 0.5 });
+    
+    // Only show splash screens if not disabled
+    if (!splashesDisabled) {
+    // Check if all trees are grown and nav-2 hasn't been shown yet
+    if (currentTreeCount === 30 && !nav2Shown) {
+    showNav2();
+    nav2Shown = true;
+    }
+    
+    // Check if we've reached 2250 AD era and nav-3 hasn't been shown yet
+    const allIndustrialFull = (
+    currentOilRigCount >= totalOilRigs &&
+    currentAntennaCount >= totalAntennas &&
+    currentCityCount >= totalCities &&
+    currentNuclearCount >= totalNuclear &&
+    currentSmokestacksCount >= totalSmokestacks &&
+    currentSpaceJunkCount >= totalSpaceJunk
+    );
+    
+    if (treePercentage >= 1.0 && allIndustrialFull && !nav3Shown) {
+    showNav3();
+    nav3Shown = true;
+    }
+    
+    // Check if we've reached 3050 AD era (no trees, all industrial) and nav-4 hasn't been shown yet
+    if (treePercentage === 0 && allIndustrialFull && !nav4Shown) {
+    showNav4();
+    nav4Shown = true;
+    }
+    }
+    }
+    
+    // Show nav functions with cursor reset
+    function showNav2() {
+    const nav2 = document.querySelector(".nav-2");
+    nav2.style.display = "flex";
+    gsap.set(nav2, {
+    y: window.innerHeight,
+    opacity: 0
+    });
+    gsap.to(nav2, {
+    y: 0,
+    opacity: 1,
+    duration: 1.2,
+    ease: "power2.out",
+    onComplete: () => {
+      resetCursorToCenter(); // Reset cursor when overlay is fully visible
+    }
+    });
+    }
+    
+    function showNav3() {
+    const nav3 = document.querySelector(".nav-3");
+    nav3.style.display = "flex";
+    gsap.set(nav3, {
+    y: window.innerHeight,
+    opacity: 0
+    });
+    gsap.to(nav3, {
+    y: 0,
+    opacity: 1,
+    duration: 1.2,
+    ease: "power2.out",
+    onComplete: () => {
+      resetCursorToCenter(); // Reset cursor when overlay is fully visible
+    }
+    });
+    }
+    
+    function showNav4() {
+    const nav4 = document.querySelector(".nav-4");
+    nav4.style.display = "flex";
+    gsap.set(nav4, {
+    y: window.innerHeight,
+    opacity: 0
+    });
+    gsap.to(nav4, {
+    y: 0,
+    opacity: 1,
+    duration: 1.2,
+    ease: "power2.out",
+    onComplete: () => {
+      resetCursorToCenter(); // Reset cursor when overlay is fully visible
+    }
+    });
+    }
+    
+    function showNav5() {
+    const nav5 = document.querySelector(".nav-5");
+    nav5.style.display = "flex";
+    gsap.set(nav5, {
+    y: window.innerHeight,
+    opacity: 0
+    });
+    gsap.to(nav5, {
+    y: 0,
+    opacity: 1,
+    duration: 1.2,
+    ease: "power2.out",
+    onComplete: () => {
+      resetCursorToCenter(); // Reset cursor when overlay is fully visible
+    }
+    });
+    }
+    
+    // Handle mouse movement with reinterpretation mode logic
+    document.addEventListener('mousemove', (e) => {
+    const mouseX = e.clientX;
+    const windowWidth = window.innerWidth;
+    const leftBoundary = windowWidth * 0.3;
+    const rightBoundary = windowWidth * 0.7;
+    clearInterval(growthInterval);
+    clearInterval(shrinkInterval);
+    leftZone.classList.remove('active');
+    centerZone.classList.remove('active');
+    rightZone.classList.remove('active');
+    
+    if (mouseX < leftBoundary) {
+    leftZone.classList.add('active');
+    startRotation(-20);
+    
+    // In reinterpretation mode, hovering left resets to 3050AD
+    if (isReinterpretationMode) {
+    resetTo3050AD();
+    return;
+    }
+    
+    // Normal behavior for going backwards in time
+    shrinkInterval = setInterval(() => {
+    if (currentSpaceJunkCount > 0) {
+    shrinkRandomSpaceJunk();
+    } else if (currentSmokestacksCount > 0) {
+    shrinkRandomSmokestacks();
+    } else if (currentNuclearCount > 0) {
+    shrinkRandomNuclear();
+    } else if (currentCityCount > 0) {
+    shrinkRandomCity();
+    } else if (currentAntennaCount > 0) {
+    shrinkRandomAntenna();
+    } else if (currentOilRigCount > 0) {
+    shrinkRandomOilRig();
+    } else if (currentTreeCount > 0) {
+    shrinkRandomTree();
+    }
+    }, 800);
+    } else if (mouseX > rightBoundary) {
+    rightZone.classList.add('active');
+    startRotation(20);
+    
+    // Different behavior in reinterpretation mode
+    if (isReinterpretationMode) {
+    growthInterval = setInterval(() => {
+    // Focus on growing trees and cities in reinterpretation mode
+    if (currentTreeCount < totalTrees) {
+    growRandomTree();
+    } else if (currentCityCount < totalCities) {
+    growRandomCity();
+    }
+    }, 400);
+    } else {
+    // Normal behavior for going forward in time
+    growthInterval = setInterval(() => {
+    const treePercentage = currentTreeCount / totalTrees;
+    const allIndustrialFull = (
+    currentOilRigCount >= totalOilRigs &&
+    currentAntennaCount >= totalAntennas &&
+    currentCityCount >= totalCities &&
+    currentNuclearCount >= totalNuclear &&
+    currentSmokestacksCount >= totalSmokestacks &&
+    currentSpaceJunkCount >= totalSpaceJunk
+    );
+    
+    if (currentTreeCount < totalTrees && !allIndustrialFull) {
+    growRandomTree();
+    } else if (treePercentage >= 1.0 && currentOilRigCount < totalOilRigs) {
+    growRandomOilRig();
+    } else if (treePercentage >= 1.0 && currentAntennaCount < totalAntennas) {
+    growRandomAntenna();
+    } else if (treePercentage >= 1.0 && currentCityCount < totalCities) {
+    growRandomCity();
+    } else if (treePercentage >= 1.0 && currentNuclearCount < totalNuclear) {
+    growRandomNuclear();
+    } else if (treePercentage >= 1.0 && currentSmokestacksCount < totalSmokestacks) {
+    growRandomSmokestacks();
+    } else if (treePercentage >= 1.0 && currentSpaceJunkCount < totalSpaceJunk) {
+    growRandomSpaceJunk();
+    } else if (allIndustrialFull && currentTreeCount > 0) {
+    if (Math.random() < 0.7) {
+    shrinkRandomTree();
+    }
+    }
+    }, 600);
+    }
+    } else {
+    centerZone.classList.add('active');
+    startRotation(60);
+    }
+    });
+    
+    // Listen for reinterpretation mode event
+    window.addEventListener('enterReinterpretationMode', () => {
+      console.log("Entering reinterpretation mode...");
+      enterReinterpretationMode();
+    });
+    
+    // Initialize everything
+    initializeAllElements();
+    startRotation();
+    updateTimeEra();
+    // Start with a few trees
+    setTimeout(() => {
+    for (let i = 0; i < 4; i++) {
+    setTimeout(growRandomTree, i * 1200);
+    }
+    }, 2000);
+    });
+    
+    // Tutorial Step Logic (same as before)
+    document.addEventListener("DOMContentLoaded", () => {
+    const tutorialRight = document.querySelector(".tutorial-right");
+    const tutorialLeft = document.querySelector(".tutorial-left");
+    const tutorialCenter = document.querySelector(".tutorial-center");
+    
+    const rightZone = document.getElementById("rightZone");
+    const leftZone = document.getElementById("leftZone");
+    const centerZone = document.getElementById("centerZone");
+    
+    let tutorialStep = 0;
+    
+    tutorialRight.style.display = "block";
+    tutorialLeft.style.display = "none";
+    tutorialCenter.style.display = "none";
+    
+    rightZone.addEventListener("mouseenter", () => {
+    if (tutorialStep === 0) {
+    fadeOut(tutorialRight);
+    tutorialLeft.style.display = "block";
+    tutorialStep = 1;
+    }
+    });
+    
+    leftZone.addEventListener("mouseenter", () => {
+    if (tutorialStep === 1) {
+    fadeOut(tutorialLeft);
+    tutorialCenter.style.display = "block";
+    tutorialStep = 2;
+    }
+    });
+    
+    centerZone.addEventListener("mouseenter", () => {
+    if (tutorialStep === 2) {
+    fadeOut(tutorialCenter);
+    tutorialStep = 3;
+    }
+    });
+    
+    function fadeOut(element) {
+    element.classList.add("fade-out");
+    setTimeout(() => {
+    element.style.display = "none";
+    element.classList.remove("fade-out");
+    }, 600);
+    }
+    });
+    
+    // Cursor settings (same as before)
+    let cursorTimer;
+    
+    function resetCursorTimer() {
+    document.body.style.cursor = "default";
+    clearTimeout(cursorTimer);
+    cursorTimer = setTimeout(() => {
+    document.body.style.cursor = "none";
+    }, 6000);
+    }
+    
+    document.addEventListener("mousemove", resetCursorTimer);
+    resetCursorTimer();
+    
+    // User Test (same as before)
+    document.addEventListener("DOMContentLoaded", () => {
+    const overlay = document.getElementById("userTestOverlay");
+    const closeBtn = document.getElementById("closeOverlay");
+    
+    closeBtn.addEventListener("click", () => {
+    overlay.style.display = "none";
+    });
+    });
+    
+    // GSAP Text animations (same as before)
+    document.addEventListener("DOMContentLoaded", (event) => {
+      gsap.registerPlugin(SplitText,TextPlugin)
+      let split = SplitText.create(".text", {
+        type: "chars words lines"
+      });
+    
+      let split2 = SplitText.create(".text-2", {
+        type: "chars words lines"
+      });
+    
+      let split3 = SplitText.create(".text-3", {
+        type: "chars words lines"
+      });
+    
+      let split4 = SplitText.create(".text-4", {
+        type: "chars words lines"
+      });
+    
+      let split5 = SplitText.create(".text-5", {
+        type: "chars words lines"
+      });
+    
+      gsap.from(split.chars, {
+        y: 100,
+        autoAlpha:0,
+        stagger: {
+          amount: 0.25,
+          from: "left"
+        }
+      })
+    
+      gsap.from(split2.chars, {
+        y: 100,
+        autoAlpha:0,
+        stagger: {
+          amount: 1,
+          from: "left"
+        }
+      })
+    
+      gsap.from(split3.chars, {
+        y: 100,
+        autoAlpha:0,
+        stagger: {
+          amount: 1,
+          from: "left"
+        }
+      })
+    
+      gsap.from(split4.chars, {
+        y: 100,
+        autoAlpha:0,
+        stagger: {
+          amount: 1,
+          from: "left"
+        }
+      })
+    
+      gsap.from(split5.chars, {
+        y: 100,
+        autoAlpha:0,
+        stagger: {
+          amount: 1,
+          from: "left"
+        }
+      })
+     });
+    
+     // Splash Screens with reinterpretation mode trigger and cursor reset
+     document.addEventListener("DOMContentLoaded", () => {
+    
+      const startButton = document.querySelector(".nav-window .button");
+      const startButtonNav2 = document.querySelector(".nav-window-2 .button");
+      const startButtonNav3 = document.querySelector(".nav-window-3 .button");
+      const startButtonNav4 = document.querySelector(".nav-window-4 .button");
+      const startButtonNav5 = document.querySelector(".nav-window-5 .button");
+      const nav1 = document.querySelector(".nav-1");
+      const nav2 = document.querySelector(".nav-2");
+      const nav3 = document.querySelector(".nav-3");
+      const nav4 = document.querySelector(".nav-4");
+      const nav5 = document.querySelector(".nav-5");
+      
+      startButton.addEventListener("click", () => {
+        resetCursorToCenter(); // Reset cursor position
+        gsap.to(nav1, {
+          y: -window.innerHeight,
+          opacity: 0,
+          duration: 1.2,
+          ease: "power2.inOut",
+          onComplete: () => {
+            nav1.style.display = "none";
+          }
+        });
+      });
+    
+      startButtonNav2.addEventListener("click", () => {
+        resetCursorToCenter(); // Reset cursor position
+        gsap.to(nav2, {
+          y: -window.innerHeight,
+          opacity: 0,
+          duration: 1.2,
+          ease: "power2.inOut",
+          onComplete: () => {
+            nav2.style.display = "none";
+          }
+        });
+      });
+    
+      startButtonNav3.addEventListener("click", () => {
+        resetCursorToCenter(); // Reset cursor position
+        gsap.to(nav3, {
+          y: -window.innerHeight,
+          opacity: 0,
+          duration: 1.2,
+          ease: "power2.inOut",
+          onComplete: () => {
+            nav3.style.display = "none";
+          }
+        });
+      });
+    
+      startButtonNav4.addEventListener("click", () => {
+        resetCursorToCenter(); // Reset cursor position
+        gsap.to(nav4, {
+          y: -window.innerHeight,
+          opacity: 0,
+          duration: 1.2,
+          ease: "power2.inOut",
+          onComplete: () => {
+            nav4.style.display = "none";
+            setTimeout(() => {
+              const nav5 = document.querySelector(".nav-5");
+              nav5.style.display = "flex";
+              gsap.set(nav5, {
+                y: window.innerHeight,
+                opacity: 0
+              });
+              gsap.to(nav5, {
+                y: 0,
+                opacity: 1,
+                duration: 1.2,
+                ease: "power2.out",
+                onComplete: () => {
+                  resetCursorToCenter(); // Reset cursor when nav-5 is fully visible
+                }
+              });
+            }, 100);
+          }
+        });
+      });
+    
+      // Nav-5 button triggers reinterpretation mode with cursor reset
+      startButtonNav5.addEventListener("click", () => {
+        resetCursorToCenter(); // Reset cursor position
+        gsap.to(nav5, {
+          y: -window.innerHeight,
+          opacity: 0,
+          duration: 1.2,
+          ease: "power2.inOut",
+          onComplete: () => {
+            nav5.style.display = "none";
+            // Enter reinterpretation mode after nav-5 is dismissed
+            setTimeout(() => {
+              // Access the main script scope through a custom event
+              window.dispatchEvent(new CustomEvent('enterReinterpretationMode'));
+            }, 200);
+          }
+        });
+      });
+
+      // Handle touch events for mobile
+      const handleTouchReset = () => {
+        resetCursorToCenter();
+      };
+
+      startButton.addEventListener("touchstart", handleTouchReset);
+      startButtonNav2.addEventListener("touchstart", handleTouchReset);
+      startButtonNav3.addEventListener("touchstart", handleTouchReset);
+      startButtonNav4.addEventListener("touchstart", handleTouchReset);
+      startButtonNav5.addEventListener("touchstart", handleTouchReset);
+    });
+  })();
+</script>
+
 </body>
 </html>
