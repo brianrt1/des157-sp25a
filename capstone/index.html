@@ -22,10 +22,19 @@ box-sizing: border-box;
 }
 body {
 background-color: #FFFEEB;
-height: 100vh;
-overflow: hidden;
+min-height: 100vh;
+overflow-x: hidden;
+overflow-y: auto;
 font-family: Arial, sans-serif;
 cursor: default;
+/* Hide scrollbar for webkit browsers (Chrome, Safari, Edge) */
+scrollbar-width: none; /* Firefox */
+-ms-overflow-style: none; /* IE and Edge */
+}
+
+/* Hide scrollbar for webkit browsers */
+body::-webkit-scrollbar {
+display: none;
 }
 .rotation-container {
 position: absolute;
@@ -564,10 +573,6 @@ z-index: 2000;
 
 }
 
-
-
-
-
 .nav-window, .nav-window-2, .nav-window-3, .nav-window-4, .nav-window-5{
 
   width: 350px;
@@ -577,10 +582,7 @@ z-index: 2000;
   border-radius: 10px;
   text-align: left;
 
-
-
 }
-
 
 .nav-window .button img,.nav-window-2 .button img, .nav-window-3 .button img, .nav-window-4 .button img, .nav-window-5 .button img {
   width: 20px;
@@ -600,9 +602,19 @@ z-index: 2000;
   flex-direction: row;  /* Ensure it's horizontally aligned */
 }
 
-
-
-
+.footer {
+  position: absolute;
+  top: calc(100vh + 100px);
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  font-family: monospace;
+  font-size: 14px;
+  color: #333;
+  line-height: 1.5;
+  z-index: 10;
+  padding: 20px;
+}
 
 @keyframes fadeOut {
 from {
@@ -716,7 +728,6 @@ bottom: 95px;
 </div>
 </div>
 
-
 <div class="time-indicator" id="timeIndicator"></div>
 
 <div class="timeline-indicator">
@@ -732,14 +743,7 @@ bottom: 95px;
 <div class="year-indicator"> 
 <p class="p1">CO2 timeline</p>
 <p class="p2">2035AD</p>
-
-
-
 </div>
-
-
-
-
 
 <!-- main -->
 <div class="rotation-container" id="rotationContainer">
@@ -775,7 +779,6 @@ bottom: 95px;
     </div>
   </div>
 </div>
-</div>
 
 <div class="nav-3">
  
@@ -786,7 +789,6 @@ bottom: 95px;
       <p>Continue</p><img src="images/arrow-1.svg" alt="arrow">
     </div>
   </div>
-</div>
 </div>
 
 <div class="nav-4">
@@ -799,7 +801,6 @@ bottom: 95px;
     </div>
   </div>
 </div>
-</div>
 
 <div class="nav-5">
  
@@ -811,8 +812,11 @@ bottom: 95px;
     </div>
   </div>
 </div>
-</div>
 
+<div class="footer">
+  <div>Made by MyName - Interactive Media III - Spring 2025</div>
+  <div>created using GSAP.</div>
+</div>
 
 <script>
   (function() {
@@ -1212,7 +1216,7 @@ bottom: 95px;
           industrialElements.push({...item, type});
         });
       });
-  
+
       industrialElements.forEach((item, index) => {
         setTimeout(() => {
           const container = document.getElementById("rotationContainer");
@@ -1224,7 +1228,7 @@ bottom: 95px;
           const edgePos = getViewportEdgePosition(absoluteAngle);
           const offsetX = edgePos.x - containerCenterX;
           const offsetY = edgePos.y - containerCenterY + 210;
-  
+
           gsap.to(item.element, {
             x: offsetX,
             y: offsetY,
@@ -1251,10 +1255,10 @@ bottom: 95px;
           allElements.push({...item, type});
         });
       });
-  
+
       // Shuffle to avoid spiral effect
       const shuffledElements = allElements.sort(() => Math.random() - 0.5);
-  
+
       shuffledElements.forEach((item, index) => {
         setTimeout(() => {
           const container = document.getElementById("rotationContainer");
@@ -1266,7 +1270,7 @@ bottom: 95px;
           const edgePos = getViewportEdgePosition(absoluteAngle);
           const offsetX = edgePos.x - containerCenterX;
           const offsetY = edgePos.y - containerCenterY + 210;
-  
+
           gsap.to(item.element, {
             x: offsetX,
             y: offsetY,
@@ -1441,7 +1445,7 @@ bottom: 95px;
       if (!leftZone || !centerZone || !rightZone) {
         return;
       }
-  
+
       // Clear intervals when mouse leaves zones
       function clearIntervals() {
         if (gameState.intervals.growth) {
@@ -1458,7 +1462,7 @@ bottom: 95px;
         centerZone.classList.remove('active');
         rightZone.classList.remove('active');
       }
-  
+
       // Right zone: advance time (grow elements)
       function handleRightZone() {
         clearIntervals();
@@ -1529,7 +1533,7 @@ bottom: 95px;
           }, 600);
         }
       }
-  
+
       // Left zone: reverse time (shrink elements)
       function handleLeftZone() {
         clearIntervals();
@@ -1554,24 +1558,24 @@ bottom: 95px;
           }
         }, 800);
       }
-  
+
       // Center zone: slow time
       function handleCenterZone() {
         clearIntervals();
         centerZone.classList.add('active');
         startRotation(60);
       }
-  
+
       // Mouse events
       rightZone.addEventListener('mouseenter', handleRightZone);
       leftZone.addEventListener('mouseenter', handleLeftZone);
       centerZone.addEventListener('mouseenter', handleCenterZone);
-  
+
       // Touch events for mobile
       rightZone.addEventListener('touchstart', handleRightZone, { passive: true });
       leftZone.addEventListener('touchstart', handleLeftZone, { passive: true });
       centerZone.addEventListener('touchstart', handleCenterZone, { passive: true });
-  
+
       // Clear intervals when leaving zones
       leftZone.addEventListener('mouseleave', clearIntervals);
       centerZone.addEventListener('mouseleave', clearIntervals);
