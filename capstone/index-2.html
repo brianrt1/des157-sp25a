@@ -111,7 +111,7 @@ left: 50%;
 transform: translate(-50%, -50%) translateX(0px) translateY(205px);
 width: 400px;
 height: 400px;
-z-index: 5;
+z-index: 1;
 }
 .city-img {
 position: absolute;
@@ -875,7 +875,10 @@ right: 200px;
         ...spaceJunk.filter(item => item.grown)
       ];
 
-      allElements.forEach((item, index) => {
+      // Shuffle the array to randomize the removal order and avoid spiral effect
+      const shuffledElements = allElements.sort(() => Math.random() - 0.5);
+
+      shuffledElements.forEach((item, index) => {
         if (item && item.element && item.element.parentNode) {
           setTimeout(() => {
             // Get current world position for pickup direction
@@ -902,7 +905,7 @@ right: 200px;
                 item.grown = false;
               }
             });
-          }, index * 50);
+          }, index * 80); // Slightly longer stagger for better visual effect
         }
       });
     }
@@ -1185,7 +1188,7 @@ right: 200px;
     function enterReinterpretationMode() {
     isReinterpretationMode = true;
     splashesDisabled = true;
-    totalTrees = 17;
+    totalTrees = 34;
     totalCities = 12;
 
     // First, animate existing industrial buildings off the world

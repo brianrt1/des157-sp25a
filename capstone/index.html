@@ -745,12 +745,89 @@ right: 200px;
 
 <script>
   (function() {
-    // Function to reset mouse/cursor position to center of overlay (global scope)
+    // Configuration object - easy to modify and understand
+    const ELEMENTS = {
+      trees: {
+        total: 34,
+        src: "images/trees-04.png",
+        className: "tree-img",
+        containerID: "treeContainer",
+        yPos: -200,
+        rotation: 90,
+        transformOrigin: "50% 190px"
+      },
+      cities: {
+        total: 6,
+        src: "images/city-1.png", 
+        className: "city-img",
+        containerID: "cityContainer",
+        yPos: -202,
+        rotation: 10,
+        transformOrigin: "50% 195px"
+      },
+      oilRigs: {
+        total: 3,
+        src: "images/oil-rig-01.png",
+        className: "oil-rig-img", 
+        containerID: "oilRigContainer",
+        yPos: -205,
+        rotation: 90,
+        transformOrigin: "50% 200px"
+      },
+      antennas: {
+        total: 5,
+        src: "images/antenna-01.png",
+        className: "antenna-img",
+        containerID: "antennaContainer", 
+        yPos: -202,
+        rotation: 55,
+        transformOrigin: "50% 195px"
+      },
+      nuclear: {
+        total: 3,
+        src: "images/nuclear-1.png",
+        className: "nuclear-img",
+        containerID: "nuclearContainer",
+        yPos: -202,
+        rotation: 40,
+        transformOrigin: "50% 195px"
+      },
+      smokestacks: {
+        total: 5,
+        src: "images/smokestacks-1.png",
+        className: "smokestacks-img",
+        containerID: "smokestacksContainer",
+        yPos: -202,
+        rotation: 25,
+        transformOrigin: "50% 195px"
+      },
+      spaceJunk: {
+        total: 3,
+        src: "images/space-junk-1.png",
+        className: "space-junk-img",
+        containerID: "spaceJunkContainer",
+        yPos: -202,
+        rotation: 57,
+        transformOrigin: "50% 195px"
+      }
+    };
+  
+    // Global state object - keeps everything organized
+    const gameState = {
+      isReinterpretationMode: false,
+      splashesDisabled: false,
+      navShown: { nav2: false, nav3: false, nav4: false, nav5: false },
+      elements: {}, // Will hold all element arrays
+      counts: {}, // Will hold all current counts
+      containers: {}, // Will hold all container references
+      intervals: { rotation: null, growth: null, shrink: null }
+    };
+  
+    // Function to reset cursor to center
     function resetCursorToCenter() {
       const centerX = window.innerWidth / 2;
       const centerY = window.innerHeight / 2;
       
-      // Create invisible element at center to trigger hover
       const centerElement = document.createElement('div');
       centerElement.style.position = 'fixed';
       centerElement.style.left = centerX + 'px';
@@ -761,7 +838,6 @@ right: 200px;
       centerElement.style.zIndex = '9999';
       document.body.appendChild(centerElement);
       
-      // Simulate mouse position at center
       const event = new MouseEvent('mousemove', {
         clientX: centerX,
         clientY: centerY,
@@ -773,1580 +849,741 @@ right: 200px;
         document.body.removeChild(centerElement);
       }, 100);
     }
-
-    document.addEventListener("DOMContentLoaded", () => {
-    const container = document.getElementById("rotationContainer");
-    const treeContainer = document.getElementById("treeContainer");
-    const oilRigContainer = document.getElementById("oilRigContainer");
-    const antennaContainer = document.getElementById("antennaContainer");
-    const cityContainer = document.getElementById("cityContainer");
-    const nuclearContainer = document.getElementById("nuclearContainer");
-    const smokestacksContainer = document.getElementById("smokestacksContainer");
-    const spaceJunkContainer = document.getElementById("spaceJunkContainer");
-    const timeIndicator = document.getElementById("timeIndicator");
-    const leftZone = document.getElementById("leftZone");
-    const centerZone = document.getElementById("centerZone");
-    const rightZone = document.getElementById("rightZone");
-    
-    // Dynamic totals based on mode
-    let isReinterpretationMode = false;
-    let totalTrees = 34;
-    let totalCities = 6;
-    const totalOilRigs = 3;
-    const totalAntennas = 5;
-    const totalNuclear = 3;
-    const totalSmokestacks = 5;
-    const totalSpaceJunk = 3;
-    
-    let trees = [];
-    let oilRigs = [];
-    let antennas = [];
-    let cities = [];
-    let nuclear = [];
-    let smokestacks = [];
-    let spaceJunk = [];
-    let currentTreeCount = 0;
-    let currentOilRigCount = 0;
-    let currentAntennaCount = 0;
-    let currentCityCount = 0;
-    let currentNuclearCount = 0;
-    let currentSmokestacksCount = 0;
-    let currentSpaceJunkCount = 0;
-    let nav2Shown = false;
-    let nav3Shown = false;
-    let nav4Shown = false;
-    let nav5Shown = false;
-    let splashesDisabled = false; // Flag to disable splash screens
-    let rotationTween;
-    let growthInterval;
-    let shrinkInterval;
-
-    // Function to animate existing industrial buildings off the world (for reinterpretation mode entry)
-    function removeIndustrialBuildings() {
-      const industrialElements = [
-        ...oilRigs.filter(item => item.grown),
-        ...antennas.filter(item => item.grown),
-        ...nuclear.filter(item => item.grown),
-        ...smokestacks.filter(item => item.grown),
-        ...spaceJunk.filter(item => item.grown)
-      ];
-
-      industrialElements.forEach((item, index) => {
-        if (item && item.element && item.element.parentNode) {
-          setTimeout(() => {
-            // Get current world position for pickup direction
-            const containerRect = container.getBoundingClientRect();
-            const containerCenterX = containerRect.left + containerRect.width / 2;
-            const containerCenterY = containerRect.top + containerRect.height / 2;
-            const currentRotation = gsap.getProperty(container, "rotation") || 0;
-            const absoluteAngle = item.angle + currentRotation;
-            const edgePos = getViewportEdgePosition(absoluteAngle);
-            const offsetX = edgePos.x - containerCenterX;
-            const offsetY = edgePos.y - containerCenterY + 210;
-
-            gsap.to(item.element, {
-              x: offsetX,
-              y: offsetY,
-              opacity: 0,
-              scale: 0.1,
-              duration: 1.0,
-              ease: "power2.in",
-              onComplete: () => {
-                if (item.element && item.element.parentNode) {
-                  item.element.parentNode.removeChild(item.element);
-                }
-                item.grown = false;
-              }
-            });
-          }, index * 100);
-        }
-      });
+  
+    // Unified function to create any element
+    function createElement(type) {
+      const config = ELEMENTS[type];
+      const img = document.createElement("img");
+      img.src = config.src;
+      img.className = config.className;
+      return img;
     }
-
-    // Function to animate all elements off the world (for reinterpretation reset)
-    function animateAllElementsOffWorld() {
-      const allElements = [
-        ...trees.filter(item => item.grown),
-        ...oilRigs.filter(item => item.grown),
-        ...antennas.filter(item => item.grown),
-        ...cities.filter(item => item.grown),
-        ...nuclear.filter(item => item.grown),
-        ...smokestacks.filter(item => item.grown),
-        ...spaceJunk.filter(item => item.grown)
-      ];
-
-      // Shuffle the array to randomize the removal order and avoid spiral effect
-      const shuffledElements = allElements.sort(() => Math.random() - 0.5);
-
-      shuffledElements.forEach((item, index) => {
-        if (item && item.element && item.element.parentNode) {
-          setTimeout(() => {
-            // Get current world position for pickup direction
-            const containerRect = container.getBoundingClientRect();
-            const containerCenterX = containerRect.left + containerRect.width / 2;
-            const containerCenterY = containerRect.top + containerRect.height / 2;
-            const currentRotation = gsap.getProperty(container, "rotation") || 0;
-            const absoluteAngle = item.angle + currentRotation;
-            const edgePos = getViewportEdgePosition(absoluteAngle);
-            const offsetX = edgePos.x - containerCenterX;
-            const offsetY = edgePos.y - containerCenterY + 210;
-
-            gsap.to(item.element, {
-              x: offsetX,
-              y: offsetY,
-              opacity: 0,
-              scale: 0.1,
-              duration: 1.0,
-              ease: "power2.in",
-              onComplete: () => {
-                if (item.element && item.element.parentNode) {
-                  item.element.parentNode.removeChild(item.element);
-                }
-                item.grown = false;
-              }
-            });
-          }, index * 80); // Slightly longer stagger for better visual effect
-        }
-      });
-    }
-    
-    // Start the world rotation with GSAP
-    function startRotation(speed = 60) {
-    if (rotationTween) rotationTween.kill();
-    if (speed < 0) {
-    rotationTween = gsap.to(container, {
-    rotation: "-=360",
-    duration: Math.abs(speed),
-    ease: "none",
-    repeat: -1
-    });
-    } else {
-    rotationTween = gsap.to(container, {
-    rotation: "+=360",
-    duration: speed,
-    ease: "none",
-    repeat: -1
-    });
-    }
-    }
-    
-    // Create tree image
-    function createTreeImage() {
-    const img = document.createElement("img");
-    img.src = "images/trees-04.png";
-    img.className = "tree-img";
-    return img;
-    }
-    
-    // Create oil rig image
-    function createOilRigImage() {
-    const img = document.createElement("img");
-    img.src = "images/oil-rig-01.png";
-    img.className = "oil-rig-img";
-    return img;
-    }
-    
-    // Create antenna image
-    function createAntennaImage() {
-    const img = document.createElement("img");
-    img.src = "images/antenna-01.png";
-    img.className = "antenna-img";
-    return img;
-    }
-    
-    // Create city image
-    function createCityImage() {
-    const img = document.createElement("img");
-    img.src = "images/city-1.png";
-    img.className = "city-img";
-    return img;
-    }
-    
-    // Create nuclear image
-    function createNuclearImage() {
-    const img = document.createElement("img");
-    img.src = "images/nuclear-1.png";
-    img.className = "nuclear-img";
-    return img;
-    }
-    
-    // Create smokestacks image
-    function createSmokestacksImage() {
-    const img = document.createElement("img");
-    img.src = "images/smokestacks-1.png";
-    img.className = "smokestacks-img";
-    return img;
-    }
-    
-    // Create space junk image
-    function createSpaceJunkImage() {
-    const img = document.createElement("img");
-    img.src = "images/space-junk-1.png";
-    img.className = "space-junk-img";
-    return img;
-    }
-    
-    // Calculate viewport edge position for a given angle
+  
+    // Calculate viewport edge position
     function getViewportEdgePosition(angle) {
-    const centerX = window.innerWidth / 2;
-    const centerY = window.innerHeight / 2;
-    const maxDistance = Math.max(window.innerWidth, window.innerHeight);
-    // Convert angle to radians and calculate edge position
-    const radians = (angle - 90) * (Math.PI / 180); // -90 to align with top
-    const edgeX = centerX + Math.cos(radians) * maxDistance;
-    const edgeY = centerY + Math.sin(radians) * maxDistance;
-    return { x: edgeX, y: edgeY };
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+      const maxDistance = Math.max(window.innerWidth, window.innerHeight);
+      const radians = (angle - 90) * (Math.PI / 180);
+      const edgeX = centerX + Math.cos(radians) * maxDistance;
+      const edgeY = centerY + Math.sin(radians) * maxDistance;
+      return { x: edgeX, y: edgeY };
     }
-    
-    // Clear all containers
-    function clearAllContainers() {
-    treeContainer.innerHTML = '';
-    oilRigContainer.innerHTML = '';
-    antennaContainer.innerHTML = '';
-    cityContainer.innerHTML = '';
-    nuclearContainer.innerHTML = '';
-    smokestacksContainer.innerHTML = '';
-    spaceJunkContainer.innerHTML = '';
-    trees = [];
-    oilRigs = [];
-    antennas = [];
-    cities = [];
-    nuclear = [];
-    smokestacks = [];
-    spaceJunk = [];
-    currentTreeCount = 0;
-    currentOilRigCount = 0;
-    currentAntennaCount = 0;
-    currentCityCount = 0;
-    currentNuclearCount = 0;
-    currentSmokestacksCount = 0;
-    currentSpaceJunkCount = 0;
+  
+    // Unified function to initialize elements of any type
+    function initializeElements(type) {
+      const config = ELEMENTS[type];
+      if (!config) {
+        console.error(`Element config for type '${type}' not found`);
+        return;
+      }
+      
+      const container = gameState.containers[type];
+      if (!container) {
+        console.error(`Container for type '${type}' not found`);
+        return;
+      }
+      
+      const total = gameState.isReinterpretationMode && type === 'trees' ? 34 : 
+                    gameState.isReinterpretationMode && type === 'cities' ? 12 : config.total;
+      
+      gameState.elements[type] = [];
+      gameState.counts[type] = 0;
+      
+      for (let i = 0; i < total; i++) {
+        const element = createElement(type);
+        container.appendChild(element);
+        const rotationAngle = (360 / total) * i;
+        
+        gsap.set(element, {
+          rotation: rotationAngle + config.rotation,
+          transformOrigin: config.transformOrigin,
+          opacity: 0,
+          scale: 0,
+          y: config.yPos
+        });
+        
+        gameState.elements[type].push({
+          element: element,
+          index: i,
+          angle: rotationAngle,
+          grown: false
+        });
+      }
     }
-    
-    // Initialize all trees using GSAP's rotation positioning
-    function initializeTrees() {
-    for (let i = 0; i < totalTrees; i++) {
-    const tree = createTreeImage();
-    treeContainer.appendChild(tree);
-    const rotationAngle = (360 / totalTrees) * i;
-    // Set initial position on planet surface (hidden)
-    gsap.set(tree, {
-    rotation: rotationAngle + 90,
-    transformOrigin: "50% 190px",
-    opacity: 0,
-    scale: 0,
-    y: -200 // On planet surface
-    });
-    trees.push({
-    element: tree,
-    index: i,
-    angle: rotationAngle,
-    grown: false
-    });
+  
+    // Unified function to grow any element type
+    function growRandomElement(type) {
+      if (!gameState.elements[type] || !Array.isArray(gameState.elements[type])) {
+        console.error(`Elements array for type '${type}' not found or invalid`);
+        return;
+      }
+      
+      const ungrownElements = gameState.elements[type].filter(item => item && !item.grown);
+      if (ungrownElements.length === 0) return;
+      
+      const randomElement = ungrownElements[Math.floor(Math.random() * ungrownElements.length)];
+      if (!randomElement || !randomElement.element) {
+        console.error(`Invalid element selected for type '${type}'`);
+        return;
+      }
+      
+      const config = ELEMENTS[type];
+      const container = document.getElementById("rotationContainer");
+      if (!container) {
+        console.error("Rotation container not found");
+        return;
+      }
+      
+      // Get animation positions
+      const containerRect = container.getBoundingClientRect();
+      const containerCenterX = containerRect.left + containerRect.width / 2;
+      const containerCenterY = containerRect.top + containerRect.height / 2;
+      const currentRotation = gsap.getProperty(container, "rotation") || 0;
+      const absoluteAngle = randomElement.angle + currentRotation;
+      const edgePos = getViewportEdgePosition(absoluteAngle);
+      const offsetX = edgePos.x - containerCenterX;
+      const offsetY = edgePos.y - containerCenterY;
+      const localOffsetX = offsetX;
+      const localOffsetY = offsetY + 210;
+      
+      // Animate from edge to planet
+      gsap.set(randomElement.element, {
+        x: localOffsetX,
+        y: localOffsetY,
+        opacity: 0,
+        scale: 0.2
+      });
+      
+      const tl = gsap.timeline();
+      tl.to(randomElement.element, {
+        opacity: 1,
+        duration: 0.3
+      }).to(randomElement.element, {
+        x: 0,
+        y: config.yPos,
+        scale: 1,
+        duration: 1.2,
+        ease: "bounce.out"
+      });
+      
+      randomElement.grown = true;
+      gameState.counts[type]++;
+      updateTimeEra();
     }
+  
+    // Unified function to shrink any element type
+    function shrinkRandomElement(type) {
+      const grownElements = gameState.elements[type].filter(item => item.grown);
+      if (grownElements.length === 0) return;
+      
+      const randomElement = grownElements[Math.floor(Math.random() * grownElements.length)];
+      const config = ELEMENTS[type];
+      const container = document.getElementById("rotationContainer");
+      
+      // Get animation positions
+      const containerRect = container.getBoundingClientRect();
+      const containerCenterX = containerRect.left + containerRect.width / 2;
+      const containerCenterY = containerRect.top + containerRect.height / 2;
+      const currentRotation = gsap.getProperty(container, "rotation") || 0;
+      const absoluteAngle = randomElement.angle + currentRotation;
+      const edgePos = getViewportEdgePosition(absoluteAngle);
+      const offsetX = edgePos.x - containerCenterX;
+      const offsetY = edgePos.y - containerCenterY + 210;
+      
+      // Animate to edge
+      gsap.to(randomElement.element, {
+        x: offsetX,
+        y: offsetY,
+        opacity: 0,
+        scale: 0.1,
+        duration: 1.0,
+        ease: "power2.in",
+        onComplete: () => {
+          gsap.set(randomElement.element, {
+            x: 0,
+            y: config.yPos,
+            scale: 0
+          });
+        }
+      });
+      
+      randomElement.grown = false;
+      gameState.counts[type]--;
+      updateTimeEra();
     }
-    
-    // Initialize all oil rigs using GSAP's rotation positioning
-    function initializeOilRigs() {
-    for (let i = 0; i < totalOilRigs; i++) {
-    const oilRig = createOilRigImage();
-    oilRigContainer.appendChild(oilRig);
-    const rotationAngle = (360 / totalOilRigs) * i;
-    // Set initial position on planet surface (hidden)
-    gsap.set(oilRig, {
-    rotation: rotationAngle + 90,
-    transformOrigin: "50% 200px", // Slightly closer to surface due to larger size
-    opacity: 0,
-    scale: 0,
-    y: -205 // Slightly closer to planet surface
-    });
-    oilRigs.push({
-    element: oilRig,
-    index: i,
-    angle: rotationAngle,
-    grown: false
-    });
+  
+    // Start world rotation
+    function startRotation(speed = 60) {
+      if (gameState.intervals.rotation) gameState.intervals.rotation.kill();
+      
+      if (speed < 0) {
+        gameState.intervals.rotation = gsap.to("#rotationContainer", {
+          rotation: "-=360",
+          duration: Math.abs(speed),
+          ease: "none",
+          repeat: -1
+        });
+      } else {
+        gameState.intervals.rotation = gsap.to("#rotationContainer", {
+          rotation: "+=360", 
+          duration: speed,
+          ease: "none",
+          repeat: -1
+        });
+      }
     }
+  
+    // Clear all containers and reset state
+    function clearAll() {
+      Object.keys(ELEMENTS).forEach(type => {
+        gameState.containers[type].innerHTML = '';
+        gameState.elements[type] = [];
+        gameState.counts[type] = 0;
+      });
     }
-    
-    // Initialize all antennas using GSAP's rotation positioning
-    function initializeAntennas() {
-    for (let i = 0; i < totalAntennas; i++) {
-    const antenna = createAntennaImage();
-    antennaContainer.appendChild(antenna);
-    const rotationAngle = (360 / totalAntennas) * i;
-    // Set initial position on planet surface (hidden)
-    gsap.set(antenna, {
-    rotation: rotationAngle + 55,
-    transformOrigin: "50% 195px",
-    opacity: 0,
-    scale: 0,
-    y: -202 // On planet surface
-    });
-    antennas.push({
-    element: antenna,
-    index: i,
-    angle: rotationAngle,
-    grown: false
-    });
+  
+    // Initialize all element types
+    function initializeAll() {
+      Object.keys(ELEMENTS).forEach(type => {
+        initializeElements(type);
+      });
     }
+  
+    // Special functions for reinterpretation mode
+    function removeIndustrialBuildings() {
+      const industrialTypes = ['oilRigs', 'antennas', 'nuclear', 'smokestacks', 'spaceJunk'];
+      const industrialElements = [];
+      
+      industrialTypes.forEach(type => {
+        gameState.elements[type].filter(item => item.grown).forEach(item => {
+          industrialElements.push({...item, type});
+        });
+      });
+  
+      industrialElements.forEach((item, index) => {
+        setTimeout(() => {
+          const container = document.getElementById("rotationContainer");
+          const containerRect = container.getBoundingClientRect();
+          const containerCenterX = containerRect.left + containerRect.width / 2;
+          const containerCenterY = containerRect.top + containerRect.height / 2;
+          const currentRotation = gsap.getProperty(container, "rotation") || 0;
+          const absoluteAngle = item.angle + currentRotation;
+          const edgePos = getViewportEdgePosition(absoluteAngle);
+          const offsetX = edgePos.x - containerCenterX;
+          const offsetY = edgePos.y - containerCenterY + 210;
+  
+          gsap.to(item.element, {
+            x: offsetX,
+            y: offsetY,
+            opacity: 0,
+            scale: 0.1,
+            duration: 1.0,
+            ease: "power2.in",
+            onComplete: () => {
+              if (item.element && item.element.parentNode) {
+                item.element.parentNode.removeChild(item.element);
+              }
+              item.grown = false;
+            }
+          });
+        }, index * 100);
+      });
     }
-    
-    // Initialize all cities using GSAP's rotation positioning
-    function initializeCities() {
-    for (let i = 0; i < totalCities; i++) {
-    const city = createCityImage();
-    cityContainer.appendChild(city);
-    const rotationAngle = (360 / totalCities) * i;
-    // Set initial position on planet surface (hidden)
-    gsap.set(city, {
-    rotation: rotationAngle + 10,
-    transformOrigin: "50% 195px",
-    opacity: 0,
-    scale: 0,
-    y: -202 // On planet surface
-    });
-    cities.push({
-    element: city,
-    index: i,
-    angle: rotationAngle,
-    grown: false
-    });
+  
+    function animateAllElementsOffWorld() {
+      const allElements = [];
+      
+      Object.keys(ELEMENTS).forEach(type => {
+        gameState.elements[type].filter(item => item.grown).forEach(item => {
+          allElements.push({...item, type});
+        });
+      });
+  
+      // Shuffle to avoid spiral effect
+      const shuffledElements = allElements.sort(() => Math.random() - 0.5);
+  
+      shuffledElements.forEach((item, index) => {
+        setTimeout(() => {
+          const container = document.getElementById("rotationContainer");
+          const containerRect = container.getBoundingClientRect();
+          const containerCenterX = containerRect.left + containerRect.width / 2;
+          const containerCenterY = containerRect.top + containerRect.height / 2;
+          const currentRotation = gsap.getProperty(container, "rotation") || 0;
+          const absoluteAngle = item.angle + currentRotation;
+          const edgePos = getViewportEdgePosition(absoluteAngle);
+          const offsetX = edgePos.x - containerCenterX;
+          const offsetY = edgePos.y - containerCenterY + 210;
+  
+          gsap.to(item.element, {
+            x: offsetX,
+            y: offsetY,
+            opacity: 0,
+            scale: 0.1,
+            duration: 1.0,
+            ease: "power2.in",
+            onComplete: () => {
+              if (item.element && item.element.parentNode) {
+                item.element.parentNode.removeChild(item.element);
+              }
+              item.grown = false;
+            }
+          });
+        }, index * 80);
+      });
     }
-    }
-    
-    // Initialize all nuclear using GSAP's rotation positioning
-    function initializeNuclear() {
-    for (let i = 0; i < totalNuclear; i++) {
-    const nuclearFacility = createNuclearImage();
-    nuclearContainer.appendChild(nuclearFacility);
-    const rotationAngle = (360 / totalNuclear) * i;
-    // Set initial position on planet surface (hidden)
-    gsap.set(nuclearFacility, {
-    rotation: rotationAngle + 40,
-    transformOrigin: "50% 195px",
-    opacity: 0,
-    scale: 0,
-    y: -202 // On planet surface
-    });
-    nuclear.push({
-    element: nuclearFacility,
-    index: i,
-    angle: rotationAngle,
-    grown: false
-    });
-    }
-    }
-    
-    // Initialize all smokestacks using GSAP's rotation positioning
-    function initializeSmokestacks() {
-    for (let i = 0; i < totalSmokestacks; i++) {
-    const smokestack = createSmokestacksImage();
-    smokestacksContainer.appendChild(smokestack);
-    const rotationAngle = (360 / totalSmokestacks) * i;
-    // Set initial position on planet surface (hidden)
-    gsap.set(smokestack, {
-    rotation: rotationAngle + 25,
-    transformOrigin: "50% 195px",
-    opacity: 0,
-    scale: 0,
-    y: -202 // On planet surface
-    });
-    smokestacks.push({
-    element: smokestack,
-    index: i,
-    angle: rotationAngle,
-    grown: false
-    });
-    }
-    }
-    
-    // Initialize all space junk using GSAP's rotation positioning
-    function initializeSpaceJunk() {
-    for (let i = 0; i < totalSpaceJunk; i++) {
-    const junk = createSpaceJunkImage();
-    spaceJunkContainer.appendChild(junk);
-    const rotationAngle = (360 / totalSpaceJunk) * i;
-    // Set initial position on planet surface (hidden)
-    gsap.set(junk, {
-    rotation: rotationAngle + 57,
-    transformOrigin: "50% 195px",
-    opacity: 0,
-    scale: 0,
-    y: -202 // On planet surface
-    });
-    spaceJunk.push({
-    element: junk,
-    index: i,
-    angle: rotationAngle,
-    grown: false
-    });
-    }
-    }
-    
-    // Reinitialize world for reinterpretation mode
+  
+    // Mode switching functions
     function enterReinterpretationMode() {
-    isReinterpretationMode = true;
-    splashesDisabled = true;
-    totalTrees = 34;
-    totalCities = 12;
-
-    // First, animate existing industrial buildings off the world
-    removeIndustrialBuildings();
-    
-    // Wait for industrial buildings to be removed, then clear and reinitialize
-    setTimeout(() => {
-      // Clear everything and reinitialize
-      clearAllContainers();
-      initializeTrees();
-      initializeCities();
-      // Don't reinitialize industrial elements - they'll despawn
+      gameState.isReinterpretationMode = true;
+      gameState.splashesDisabled = true;
       
-      // Start spawning trees and cities immediately
+      removeIndustrialBuildings();
+      
       setTimeout(() => {
-      for (let i = 0; i < 8; i++) { // Start with fewer trees initially
-      setTimeout(growRandomTree, i * 200);
-      }
-      for (let i = 0; i < 6; i++) { // Start with some cities
-      setTimeout(growRandomCity, i * 300 + 1000);
-      }
-      }, 500);
-    }, 1500); // Wait for industrial building removal animations
+        clearAll();
+        initializeElements('trees');
+        initializeElements('cities');
+        
+        setTimeout(() => {
+          // Start with more trees initially
+          for (let i = 0; i < 12; i++) {
+            setTimeout(() => growRandomElement('trees'), i * 200);
+          }
+          // Start with more cities initially (grow 8 out of 12 available)
+          for (let i = 0; i < 8; i++) {
+            setTimeout(() => growRandomElement('cities'), i * 300 + 1000);
+          }
+        }, 500);
+      }, 1500);
     }
-    
-    // Reset to 3050 AD state (normal flow) - enhanced with animation
+  
     function resetTo3050AD() {
-    if (!isReinterpretationMode) return;
-    
-    // Animate all current elements off the world first
-    animateAllElementsOffWorld();
-    
-    // Wait for animations to complete (same timing as other animations), then reset
-    setTimeout(() => {
-      isReinterpretationMode = false;
-      totalTrees = 34;
-      totalCities = 6;
+      if (!gameState.isReinterpretationMode) return;
       
-      // Clear everything and reinitialize to normal
-      clearAllContainers();
-      initializeAllElements();
+      animateAllElementsOffWorld();
       
-      // Set to 3050 AD state (no trees, all industrial)
       setTimeout(() => {
-      for (let i = 0; i < totalOilRigs; i++) {
-      setTimeout(growRandomOilRig, i * 100);
-      }
-      for (let i = 0; i < totalAntennas; i++) {
-      setTimeout(growRandomAntenna, i * 150);
-      }
-      for (let i = 0; i < totalCities; i++) {
-      setTimeout(growRandomCity, i * 120);
-      }
-      for (let i = 0; i < totalNuclear; i++) {
-      setTimeout(growRandomNuclear, i * 180);
-      }
-      for (let i = 0; i < totalSmokestacks; i++) {
-      setTimeout(growRandomSmokestacks, i * 160);
-      }
-      for (let i = 0; i < totalSpaceJunk; i++) {
-      setTimeout(growRandomSpaceJunk, i * 140);
-      }
-      }, 500);
-    }, 1500); // Wait same amount as industrial building removal animations (1.0s duration + 500ms buffer)
+        gameState.isReinterpretationMode = false;
+        clearAll();
+        initializeAll();
+        
+        setTimeout(() => {
+          const industrialTypes = ['oilRigs', 'antennas', 'cities', 'nuclear', 'smokestacks', 'spaceJunk'];
+          industrialTypes.forEach((type, typeIndex) => {
+            const total = ELEMENTS[type].total;
+            for (let i = 0; i < total; i++) {
+              setTimeout(() => growRandomElement(type), i * 100 + typeIndex * 50);
+            }
+          });
+        }, 500);
+      }, 1500);
     }
-    
-    // Initialize all elements (normal mode)
-    function initializeAllElements() {
-    initializeTrees();
-    initializeOilRigs();
-    initializeAntennas();
-    initializeCities();
-    initializeNuclear();
-    initializeSmokestacks();
-    initializeSpaceJunk();
-    }
-    
-    // Grow a random tree with proper viewport edge animation
-    function growRandomTree() {
-    const ungrownTrees = trees.filter(tree => !tree.grown);
-    if (ungrownTrees.length === 0) return;
-    const randomIndex = Math.floor(Math.random() * ungrownTrees.length);
-    const treeToGrow = ungrownTrees[randomIndex];
-    // Get the tree's world position (accounting for rotation)
-    const containerRect = container.getBoundingClientRect();
-    const containerCenterX = containerRect.left + containerRect.width / 2;
-    const containerCenterY = containerRect.top + containerRect.height / 2;
-    // Calculate the tree's angle relative to current container rotation
-    const currentRotation = gsap.getProperty(container, "rotation") || 0;
-    const absoluteAngle = treeToGrow.angle + currentRotation;
-    // Get viewport edge position for this angle
-    const edgePos = getViewportEdgePosition(absoluteAngle);
-    // Calculate offset from container center to viewport edge
-    const offsetX = edgePos.x - containerCenterX;
-    const offsetY = edgePos.y - containerCenterY;
-    // Convert world coordinates to local tree container coordinates
-    const localOffsetX = offsetX;
-    const localOffsetY = offsetY + 210; // Account for tree container offset
-    const tl = gsap.timeline();
-    // Start from viewport edge
-    gsap.set(treeToGrow.element, {
-    x: localOffsetX,
-    y: localOffsetY,
-    opacity: 0,
-    scale: 0.2
-    });
-    // Animate to planet surface
-    tl.to(treeToGrow.element, {
-    opacity: 1,
-    duration: 0.3
-    })
-    .to(treeToGrow.element, {
-    x: 0,
-    y: -200, // Planet surface position
-    scale: 1,
-    duration: 1.2,
-    ease: "bounce.out"
-    });
-    treeToGrow.grown = true;
-    currentTreeCount++;
-    updateTimeEra();
-    }
-    
-    // Grow a random oil rig with proper viewport edge animation
-    function growRandomOilRig() {
-    const ungrownOilRigs = oilRigs.filter(oilRig => !oilRig.grown);
-    if (ungrownOilRigs.length === 0) return;
-    const randomIndex = Math.floor(Math.random() * ungrownOilRigs.length);
-    const oilRigToGrow = ungrownOilRigs[randomIndex];
-    // Get the oil rig's world position (accounting for rotation)
-    const containerRect = container.getBoundingClientRect();
-    const containerCenterX = containerRect.left + containerRect.width / 2;
-    const containerCenterY = containerRect.top + containerRect.height / 2;
-    // Calculate the oil rig's angle relative to current container rotation
-    const currentRotation = gsap.getProperty(container, "rotation") || 0;
-    const absoluteAngle = oilRigToGrow.angle + currentRotation;
-    // Get viewport edge position for this angle
-    const edgePos = getViewportEdgePosition(absoluteAngle);
-    // Calculate offset from container center to viewport edge
-    const offsetX = edgePos.x - containerCenterX;
-    const offsetY = edgePos.y - containerCenterY;
-    // Convert world coordinates to local oil rig container coordinates
-    const localOffsetX = offsetX;
-    const localOffsetY = offsetY + 210; // Account for oil rig container offset
-    const tl = gsap.timeline();
-    // Start from viewport edge
-    gsap.set(oilRigToGrow.element, {
-    x: localOffsetX,
-    y: localOffsetY,
-    opacity: 0,
-    scale: 0.2
-    });
-    // Animate to planet surface
-    tl.to(oilRigToGrow.element, {
-    opacity: 1,
-    duration: 0.3
-    })
-    .to(oilRigToGrow.element, {
-    x: 0,
-    y: -205, // Planet surface position
-    scale: 1,
-    duration: 1.2,
-    ease: "bounce.out"
-    });
-    oilRigToGrow.grown = true;
-    currentOilRigCount++;
-    updateTimeEra();
-    }
-    
-    // Grow a random antenna with proper viewport edge animation
-    function growRandomAntenna() {
-    const ungrownAntennas = antennas.filter(antenna => !antenna.grown);
-    if (ungrownAntennas.length === 0) return;
-    const randomIndex = Math.floor(Math.random() * ungrownAntennas.length);
-    const antennaToGrow = ungrownAntennas[randomIndex];
-    // Get the antenna's world position (accounting for rotation)
-    const containerRect = container.getBoundingClientRect();
-    const containerCenterX = containerRect.left + containerRect.width / 2;
-    const containerCenterY = containerRect.top + containerRect.height / 2;
-    // Calculate the antenna's angle relative to current container rotation
-    const currentRotation = gsap.getProperty(container, "rotation") || 0;
-    const absoluteAngle = antennaToGrow.angle + currentRotation;
-    // Get viewport edge position for this angle
-    const edgePos = getViewportEdgePosition(absoluteAngle);
-    // Calculate offset from container center to viewport edge
-    const offsetX = edgePos.x - containerCenterX;
-    const offsetY = edgePos.y - containerCenterY;
-    // Convert world coordinates to local antenna container coordinates
-    const localOffsetX = offsetX;
-    const localOffsetY = offsetY + 210; // Account for antenna container offset
-    const tl = gsap.timeline();
-    // Start from viewport edge
-    gsap.set(antennaToGrow.element, {
-    x: localOffsetX,
-    y: localOffsetY,
-    opacity: 0,
-    scale: 0.2
-    });
-    // Animate to planet surface
-    tl.to(antennaToGrow.element, {
-    opacity: 1,
-    duration: 0.3
-    })
-    .to(antennaToGrow.element, {
-    x: 0,
-    y: -202, // Planet surface position
-    scale: 1,
-    duration: 1.2,
-    ease: "bounce.out"
-    });
-    antennaToGrow.grown = true;
-    currentAntennaCount++;
-    updateTimeEra();
-    }
-    
-    // Grow a random city with proper viewport edge animation
-    function growRandomCity() {
-    const ungrownCities = cities.filter(city => !city.grown);
-    if (ungrownCities.length === 0) return;
-    const randomIndex = Math.floor(Math.random() * ungrownCities.length);
-    const cityToGrow = ungrownCities[randomIndex];
-    // Get the city's world position (accounting for rotation)
-    const containerRect = container.getBoundingClientRect();
-    const containerCenterX = containerRect.left + containerRect.width / 2;
-    const containerCenterY = containerRect.top + containerRect.height / 2;
-    // Calculate the city's angle relative to current container rotation
-    const currentRotation = gsap.getProperty(container, "rotation") || 0;
-    const absoluteAngle = cityToGrow.angle + currentRotation;
-    // Get viewport edge position for this angle
-    const edgePos = getViewportEdgePosition(absoluteAngle);
-    // Calculate offset from container center to viewport edge
-    const offsetX = edgePos.x - containerCenterX;
-    const offsetY = edgePos.y - containerCenterY;
-    // Convert world coordinates to local city container coordinates
-    const localOffsetX = offsetX;
-    const localOffsetY = offsetY + 210; // Account for city container offset
-    const tl = gsap.timeline();
-    // Start from viewport edge
-    gsap.set(cityToGrow.element, {
-    x: localOffsetX,
-    y: localOffsetY,
-    opacity: 0,
-    scale: 0.2
-    });
-    // Animate to planet surface
-    tl.to(cityToGrow.element, {
-    opacity: 1,
-    duration: 0.3
-    })
-    .to(cityToGrow.element, {
-    x: 0,
-    y: -202, // Planet surface position
-    scale: 1,
-    duration: 1.2,
-    ease: "bounce.out"
-    });
-    cityToGrow.grown = true;
-    currentCityCount++;
-    updateTimeEra();
-    }
-    
-    // Grow a random nuclear with proper viewport edge animation
-    function growRandomNuclear() {
-    const ungrownNuclear = nuclear.filter(nuclearFacility => !nuclearFacility.grown);
-    if (ungrownNuclear.length === 0) return;
-    const randomIndex = Math.floor(Math.random() * ungrownNuclear.length);
-    const nuclearToGrow = ungrownNuclear[randomIndex];
-    // Get the nuclear's world position (accounting for rotation)
-    const containerRect = container.getBoundingClientRect();
-    const containerCenterX = containerRect.left + containerRect.width / 2;
-    const containerCenterY = containerRect.top + containerRect.height / 2;
-    // Calculate the nuclear's angle relative to current container rotation
-    const currentRotation = gsap.getProperty(container, "rotation") || 0;
-    const absoluteAngle = nuclearToGrow.angle + currentRotation;
-    // Get viewport edge position for this angle
-    const edgePos = getViewportEdgePosition(absoluteAngle);
-    // Calculate offset from container center to viewport edge
-    const offsetX = edgePos.x - containerCenterX;
-    const offsetY = edgePos.y - containerCenterY;
-    // Convert world coordinates to local nuclear container coordinates
-    const localOffsetX = offsetX;
-    const localOffsetY = offsetY + 210; // Account for nuclear container offset
-    const tl = gsap.timeline();
-    // Start from viewport edge
-    gsap.set(nuclearToGrow.element, {
-    x: localOffsetX,
-    y: localOffsetY,
-    opacity: 0,
-    scale: 0.2
-    });
-    // Animate to planet surface
-    tl.to(nuclearToGrow.element, {
-    opacity: 1,
-    duration: 0.3
-    })
-    .to(nuclearToGrow.element, {
-    x: 0,
-    y: -202, // Planet surface position
-    scale: 1,
-    duration: 1.2,
-    ease: "bounce.out"
-    });
-    nuclearToGrow.grown = true;
-    currentNuclearCount++;
-    updateTimeEra();
-    }
-    
-    // Grow a random smokestacks with proper viewport edge animation
-    function growRandomSmokestacks() {
-    const ungrownSmokestacks = smokestacks.filter(smokestack => !smokestack.grown);
-    if (ungrownSmokestacks.length === 0) return;
-    const randomIndex = Math.floor(Math.random() * ungrownSmokestacks.length);
-    const smokestacksToGrow = ungrownSmokestacks[randomIndex];
-    // Get the smokestacks's world position (accounting for rotation)
-    const containerRect = container.getBoundingClientRect();
-    const containerCenterX = containerRect.left + containerRect.width / 2;
-    const containerCenterY = containerRect.top + containerRect.height / 2;
-    // Calculate the smokestacks's angle relative to current container rotation
-    const currentRotation = gsap.getProperty(container, "rotation") || 0;
-    const absoluteAngle = smokestacksToGrow.angle + currentRotation;
-    // Get viewport edge position for this angle
-    const edgePos = getViewportEdgePosition(absoluteAngle);
-    // Calculate offset from container center to viewport edge
-    const offsetX = edgePos.x - containerCenterX;
-    const offsetY = edgePos.y - containerCenterY;
-    // Convert world coordinates to local smokestacks container coordinates
-    const localOffsetX = offsetX;
-    const localOffsetY = offsetY + 210; // Account for smokestacks container offset
-    const tl = gsap.timeline();
-    // Start from viewport edge
-    gsap.set(smokestacksToGrow.element, {
-    x: localOffsetX,
-    y: localOffsetY,
-    opacity: 0,
-    scale: 0.2
-    });
-    // Animate to planet surface
-    tl.to(smokestacksToGrow.element, {
-    opacity: 1,
-    duration: 0.3
-    })
-    .to(smokestacksToGrow.element, {
-    x: 0,
-    y: -202, // Planet surface position
-    scale: 1,
-    duration: 1.2,
-    ease: "bounce.out"
-    });
-    smokestacksToGrow.grown = true;
-    currentSmokestacksCount++;
-    updateTimeEra();
-    }
-    
-    // Grow a random space junk with proper viewport edge animation
-    function growRandomSpaceJunk() {
-    const ungrownSpaceJunk = spaceJunk.filter(junk => !junk.grown);
-    if (ungrownSpaceJunk.length === 0) return;
-    const randomIndex = Math.floor(Math.random() * ungrownSpaceJunk.length);
-    const spaceJunkToGrow = ungrownSpaceJunk[randomIndex];
-    // Get the space junk's world position (accounting for rotation)
-    const containerRect = container.getBoundingClientRect();
-    const containerCenterX = containerRect.left + containerRect.width / 2;
-    const containerCenterY = containerRect.top + containerRect.height / 2;
-    // Calculate the space junk's angle relative to current container rotation
-    const currentRotation = gsap.getProperty(container, "rotation") || 0;
-    const absoluteAngle = spaceJunkToGrow.angle + currentRotation;
-    // Get viewport edge position for this angle
-    const edgePos = getViewportEdgePosition(absoluteAngle);
-    // Calculate offset from container center to viewport edge
-    const offsetX = edgePos.x - containerCenterX;
-    const offsetY = edgePos.y - containerCenterY;
-    // Convert world coordinates to local space junk container coordinates
-    const localOffsetX = offsetX;
-    const localOffsetY = offsetY + 210; // Account for space junk container offset
-    const tl = gsap.timeline();
-    // Start from viewport edge
-    gsap.set(spaceJunkToGrow.element, {
-    x: localOffsetX,
-    y: localOffsetY,
-    opacity: 0,
-    scale: 0.2
-    });
-    // Animate to planet surface
-    tl.to(spaceJunkToGrow.element, {
-    opacity: 1,
-    duration: 0.3
-    })
-    .to(spaceJunkToGrow.element, {
-    x: 0,
-    y: -202, // Planet surface position
-    scale: 1,
-    duration: 1.2,
-    ease: "bounce.out"
-    });
-    spaceJunkToGrow.grown = true;
-    currentSpaceJunkCount++;
-    updateTimeEra();
-    }
-    
-    // Shrink functions (same as before but work with dynamic arrays)
-    function shrinkRandomTree() {
-    const grownTrees = trees.filter(tree => tree.grown);
-    if (grownTrees.length === 0) return;
-    const randomIndex = Math.floor(Math.random() * grownTrees.length);
-    const treeToShrink = grownTrees[randomIndex];
-    // Get current world position for pickup direction
-    const containerRect = container.getBoundingClientRect();
-    const containerCenterX = containerRect.left + containerRect.width / 2;
-    const containerCenterY = containerRect.top + containerRect.height / 2;
-    const currentRotation = gsap.getProperty(container, "rotation") || 0;
-    const absoluteAngle = treeToShrink.angle + currentRotation;
-    const edgePos = getViewportEdgePosition(absoluteAngle);
-    const offsetX = edgePos.x - containerCenterX;
-    const offsetY = edgePos.y - containerCenterY + 210;
-    // Animate tree being "picked up" to viewport edge
-    gsap.to(treeToShrink.element, {
-    x: offsetX,
-    y: offsetY,
-    opacity: 0,
-    scale: 0.1,
-    duration: 1.0,
-    ease: "power2.in",
-    onComplete: () => {
-    // Reset position after animation
-    gsap.set(treeToShrink.element, {
-    x: 0,
-    y: -200,
-    scale: 0
-    });
-    }
-    });
-    treeToShrink.grown = false;
-    currentTreeCount--;
-    updateTimeEra();
-    }
-    
-    // Shrink functions for industrial elements (same pattern)
-    function shrinkRandomOilRig() {
-    const grownOilRigs = oilRigs.filter(oilRig => oilRig.grown);
-    if (grownOilRigs.length === 0) return;
-    const randomIndex = Math.floor(Math.random() * grownOilRigs.length);
-    const oilRigToShrink = grownOilRigs[randomIndex];
-    const containerRect = container.getBoundingClientRect();
-    const containerCenterX = containerRect.left + containerRect.width / 2;
-    const containerCenterY = containerRect.top + containerRect.height / 2;
-    const currentRotation = gsap.getProperty(container, "rotation") || 0;
-    const absoluteAngle = oilRigToShrink.angle + currentRotation;
-    const edgePos = getViewportEdgePosition(absoluteAngle);
-    const offsetX = edgePos.x - containerCenterX;
-    const offsetY = edgePos.y - containerCenterY + 210;
-    gsap.to(oilRigToShrink.element, {
-    x: offsetX,
-    y: offsetY,
-    opacity: 0,
-    scale: 0.1,
-    duration: 1.0,
-    ease: "power2.in",
-    onComplete: () => {
-    gsap.set(oilRigToShrink.element, {
-    x: 0,
-    y: -205,
-    scale: 0
-    });
-    }
-    });
-    oilRigToShrink.grown = false;
-    currentOilRigCount--;
-    updateTimeEra();
-    }
-    
-    function shrinkRandomAntenna() {
-    const grownAntennas = antennas.filter(antenna => antenna.grown);
-    if (grownAntennas.length === 0) return;
-    const randomIndex = Math.floor(Math.random() * grownAntennas.length);
-    const antennaToShrink = grownAntennas[randomIndex];
-    const containerRect = container.getBoundingClientRect();
-    const containerCenterX = containerRect.left + containerRect.width / 2;
-    const containerCenterY = containerRect.top + containerRect.height / 2;
-    const currentRotation = gsap.getProperty(container, "rotation") || 0;
-    const absoluteAngle = antennaToShrink.angle + currentRotation;
-    const edgePos = getViewportEdgePosition(absoluteAngle);
-    const offsetX = edgePos.x - containerCenterX;
-    const offsetY = edgePos.y - containerCenterY + 210;
-    gsap.to(antennaToShrink.element, {
-    x: offsetX,
-    y: offsetY,
-    opacity: 0,
-    scale: 0.1,
-    duration: 1.0,
-    ease: "power2.in",
-    onComplete: () => {
-    gsap.set(antennaToShrink.element, {
-    x: 0,
-    y: -202,
-    scale: 0
-    });
-    }
-    });
-    antennaToShrink.grown = false;
-    currentAntennaCount--;
-    updateTimeEra();
-    }
-    
-    function shrinkRandomCity() {
-    const grownCities = cities.filter(city => city.grown);
-    if (grownCities.length === 0) return;
-    const randomIndex = Math.floor(Math.random() * grownCities.length);
-    const cityToShrink = grownCities[randomIndex];
-    const containerRect = container.getBoundingClientRect();
-    const containerCenterX = containerRect.left + containerRect.width / 2;
-    const containerCenterY = containerRect.top + containerRect.height / 2;
-    const currentRotation = gsap.getProperty(container, "rotation") || 0;
-    const absoluteAngle = cityToShrink.angle + currentRotation;
-    const edgePos = getViewportEdgePosition(absoluteAngle);
-    const offsetX = edgePos.x - containerCenterX;
-    const offsetY = edgePos.y - containerCenterY + 210;
-    gsap.to(cityToShrink.element, {
-    x: offsetX,
-    y: offsetY,
-    opacity: 0,
-    scale: 0.1,
-    duration: 1.0,
-    ease: "power2.in",
-    onComplete: () => {
-    gsap.set(cityToShrink.element, {
-    x: 0,
-    y: -202,
-    scale: 0
-    });
-    }
-    });
-    cityToShrink.grown = false;
-    currentCityCount--;
-    updateTimeEra();
-    }
-    
-    function shrinkRandomNuclear() {
-    const grownNuclear = nuclear.filter(nuclearFacility => nuclearFacility.grown);
-    if (grownNuclear.length === 0) return;
-    const randomIndex = Math.floor(Math.random() * grownNuclear.length);
-    const nuclearToShrink = grownNuclear[randomIndex];
-    const containerRect = container.getBoundingClientRect();
-    const containerCenterX = containerRect.left + containerRect.width / 2;
-    const containerCenterY = containerRect.top + containerRect.height / 2;
-    const currentRotation = gsap.getProperty(container, "rotation") || 0;
-    const absoluteAngle = nuclearToShrink.angle + currentRotation;
-    const edgePos = getViewportEdgePosition(absoluteAngle);
-    const offsetX = edgePos.x - containerCenterX;
-    const offsetY = edgePos.y - containerCenterY + 210;
-    gsap.to(nuclearToShrink.element, {
-    x: offsetX,
-    y: offsetY,
-    opacity: 0,
-    scale: 0.1,
-    duration: 1.0,
-    ease: "power2.in",
-    onComplete: () => {
-    gsap.set(nuclearToShrink.element, {
-    x: 0,
-    y: -202,
-    scale: 0
-    });
-    }
-    });
-    nuclearToShrink.grown = false;
-    currentNuclearCount--;
-    updateTimeEra();
-    }
-    
-    function shrinkRandomSmokestacks() {
-    const grownSmokestacks = smokestacks.filter(smokestack => smokestack.grown);
-    if (grownSmokestacks.length === 0) return;
-    const randomIndex = Math.floor(Math.random() * grownSmokestacks.length);
-    const smokestacksToShrink = grownSmokestacks[randomIndex];
-    const containerRect = container.getBoundingClientRect();
-    const containerCenterX = containerRect.left + containerRect.width / 2;
-    const containerCenterY = containerRect.top + containerRect.height / 2;
-    const currentRotation = gsap.getProperty(container, "rotation") || 0;
-    const absoluteAngle = smokestacksToShrink.angle + currentRotation;
-    const edgePos = getViewportEdgePosition(absoluteAngle);
-    const offsetX = edgePos.x - containerCenterX;
-    const offsetY = edgePos.y - containerCenterY + 210;
-    gsap.to(smokestacksToShrink.element, {
-    x: offsetX,
-    y: offsetY,
-    opacity: 0,
-    scale: 0.1,
-    duration: 1.0,
-    ease: "power2.in",
-    onComplete: () => {
-    gsap.set(smokestacksToShrink.element, {
-    x: 0,
-    y: -202,
-    scale: 0
-    });
-    }
-    });
-    smokestacksToShrink.grown = false;
-    currentSmokestacksCount--;
-    updateTimeEra();
-    }
-    
-    function shrinkRandomSpaceJunk() {
-    const grownSpaceJunk = spaceJunk.filter(junk => junk.grown);
-    if (grownSpaceJunk.length === 0) return;
-    const randomIndex = Math.floor(Math.random() * grownSpaceJunk.length);
-    const spaceJunkToShrink = grownSpaceJunk[randomIndex];
-    const containerRect = container.getBoundingClientRect();
-    const containerCenterX = containerRect.left + containerRect.width / 2;
-    const containerCenterY = containerRect.top + containerRect.height / 2;
-    const currentRotation = gsap.getProperty(container, "rotation") || 0;
-    const absoluteAngle = spaceJunkToShrink.angle + currentRotation;
-    const edgePos = getViewportEdgePosition(absoluteAngle);
-    const offsetX = edgePos.x - containerCenterX;
-    const offsetY = edgePos.y - containerCenterY + 210;
-    gsap.to(spaceJunkToShrink.element, {
-    x: offsetX,
-    y: offsetY,
-    opacity: 0,
-    scale: 0.1,
-    duration: 1.0,
-    ease: "power2.in",
-    onComplete: () => {
-    gsap.set(spaceJunkToShrink.element, {
-    x: 0,
-    y: -202,
-    scale: 0
-    });
-    }
-    });
-    spaceJunkToShrink.grown = false;
-    currentSpaceJunkCount--;
-    updateTimeEra();
-    }
-    
-    // Update the time era display
+  
+    // Time era calculation with automatic progression
     function updateTimeEra() {
-    const treePercentage = currentTreeCount / totalTrees;
-    const oilRigPercentage = currentOilRigCount / totalOilRigs;
-    const antennaPercentage = currentAntennaCount / totalAntennas;
-    const cityPercentage = currentCityCount / totalCities;
-    const nuclearPercentage = currentNuclearCount / totalNuclear;
-    const smokestacksPercentage = currentSmokestacksCount / totalSmokestacks;
-    const spaceJunkPercentage = currentSpaceJunkCount / totalSpaceJunk;
-    let era = "Beginning";
-    let bgColor = "rgba(0, 0, 0, 0.7)";
-    
-    // Special era for reinterpretation mode
-    if (isReinterpretationMode) {
-    era = "A Better Future";
-    bgColor = "rgba(0, 150, 0, 0.8)";
-    } else {
-    // Normal era logic
-    if (treePercentage === 0 && oilRigPercentage >= 1 && antennaPercentage >= 1 && cityPercentage >= 1 && nuclearPercentage >= 1 && smokestacksPercentage >= 1 && spaceJunkPercentage >= 1) {
-    era = "3050 AD";
-    bgColor = "rgba(10, 220, 120, 0.7)";
-    } else if (treePercentage > 0 && treePercentage < 0.5 && oilRigPercentage >= 1 && antennaPercentage >= 1 && cityPercentage >= 1 && nuclearPercentage >= 1 && smokestacksPercentage >= 1 && spaceJunkPercentage >= 1) {
-    era = "2750 AD";
-    bgColor = "rgba(20, 200, 100, 0.7)";
-    } else if (treePercentage >= 0.5 && treePercentage < 1.0 && oilRigPercentage >= 1 && antennaPercentage >= 1 && cityPercentage >= 1 && nuclearPercentage >= 1 && smokestacksPercentage >= 1 && spaceJunkPercentage >= 1) {
-    era = "2500 AD";
-    bgColor = "rgba(30, 180, 90, 0.7)";
-    } else if (treePercentage >= 1.0 && oilRigPercentage >= 1 && antennaPercentage >= 1 && cityPercentage >= 1 && nuclearPercentage >= 1 && smokestacksPercentage >= 1 && spaceJunkPercentage >= 1) {
-    era = "2250 AD";
-    bgColor = "rgba(40, 160, 80, 0.7)";
-    } else if (treePercentage >= 1.0 && (oilRigPercentage > 0 || antennaPercentage > 0 || cityPercentage > 0 || nuclearPercentage > 0 || smokestacksPercentage > 0 || spaceJunkPercentage > 0)) {
-    era = "2025 AD";
-    bgColor = "rgba(50, 140, 70, 0.7)";
-    } else if (treePercentage >= 1.0 && oilRigPercentage === 0 && antennaPercentage === 0 && cityPercentage === 0 && nuclearPercentage === 0 && smokestacksPercentage === 0 && spaceJunkPercentage === 0) {
-    era = "1750 AD";
-    bgColor = "rgba(60, 120, 60, 0.7)";
-    } else if (treePercentage >= 0.35 && treePercentage < 1.0 && oilRigPercentage === 0 && antennaPercentage === 0 && cityPercentage === 0 && nuclearPercentage === 0 && smokestacksPercentage === 0 && spaceJunkPercentage === 0) {
-    era = "1500 AD";
-    bgColor = "rgba(80, 100, 50, 0.7)";
-    } else if (treePercentage > 0 && treePercentage < 0.35 && oilRigPercentage === 0 && antennaPercentage === 0 && cityPercentage === 0 && nuclearPercentage === 0 && smokestacksPercentage === 0 && spaceJunkPercentage === 0) {
-    era = "1300 AD";
-    bgColor = "rgba(90, 70, 50, 0.7)";
-    } else if (treePercentage === 0 && oilRigPercentage === 0 && antennaPercentage === 0 && cityPercentage === 0 && nuclearPercentage === 0 && smokestacksPercentage === 0 && spaceJunkPercentage === 0) {
-    era = "1050 AD";
-    bgColor = "rgba(100, 50, 50, 0.7)";
-    }
-    }
-    
-    timeIndicator.textContent = `${era}`;
-    gsap.to(timeIndicator, { background: bgColor, duration: 0.5 });
-    
-    // Only show splash screens if not disabled
-    if (!splashesDisabled) {
-    // Check if all trees are grown and nav-2 hasn't been shown yet
-    if (currentTreeCount === 30 && !nav2Shown) {
-    showNav2();
-    nav2Shown = true;
-    }
-    
-    // Check if we've reached 2250 AD era and nav-3 hasn't been shown yet
-    const allIndustrialFull = (
-    currentOilRigCount >= totalOilRigs &&
-    currentAntennaCount >= totalAntennas &&
-    currentCityCount >= totalCities &&
-    currentNuclearCount >= totalNuclear &&
-    currentSmokestacksCount >= totalSmokestacks &&
-    currentSpaceJunkCount >= totalSpaceJunk
-    );
-    
-    if (treePercentage >= 1.0 && allIndustrialFull && !nav3Shown) {
-    showNav3();
-    nav3Shown = true;
-    }
-    
-    // Check if we've reached 3050 AD era (no trees, all industrial) and nav-4 hasn't been shown yet
-    if (treePercentage === 0 && allIndustrialFull && !nav4Shown) {
-    showNav4();
-    nav4Shown = true;
-    }
-    }
-    }
-    
-    // Show nav functions with cursor reset
-    function showNav2() {
-    const nav2 = document.querySelector(".nav-2");
-    nav2.style.display = "flex";
-    gsap.set(nav2, {
-    y: window.innerHeight,
-    opacity: 0
-    });
-    gsap.to(nav2, {
-    y: 0,
-    opacity: 1,
-    duration: 1.2,
-    ease: "power2.out",
-    onComplete: () => {
-      resetCursorToCenter(); // Reset cursor when overlay is fully visible
-    }
-    });
-    }
-    
-    function showNav3() {
-    const nav3 = document.querySelector(".nav-3");
-    nav3.style.display = "flex";
-    gsap.set(nav3, {
-    y: window.innerHeight,
-    opacity: 0
-    });
-    gsap.to(nav3, {
-    y: 0,
-    opacity: 1,
-    duration: 1.2,
-    ease: "power2.out",
-    onComplete: () => {
-      resetCursorToCenter(); // Reset cursor when overlay is fully visible
-    }
-    });
-    }
-    
-    function showNav4() {
-    const nav4 = document.querySelector(".nav-4");
-    nav4.style.display = "flex";
-    gsap.set(nav4, {
-    y: window.innerHeight,
-    opacity: 0
-    });
-    gsap.to(nav4, {
-    y: 0,
-    opacity: 1,
-    duration: 1.2,
-    ease: "power2.out",
-    onComplete: () => {
-      resetCursorToCenter(); // Reset cursor when overlay is fully visible
-    }
-    });
-    }
-    
-    function showNav5() {
-    const nav5 = document.querySelector(".nav-5");
-    nav5.style.display = "flex";
-    gsap.set(nav5, {
-    y: window.innerHeight,
-    opacity: 0
-    });
-    gsap.to(nav5, {
-    y: 0,
-    opacity: 1,
-    duration: 1.2,
-    ease: "power2.out",
-    onComplete: () => {
-      resetCursorToCenter(); // Reset cursor when overlay is fully visible
-    }
-    });
-    }
-    
-    // Handle mouse movement with reinterpretation mode logic
-    document.addEventListener('mousemove', (e) => {
-    const mouseX = e.clientX;
-    const windowWidth = window.innerWidth;
-    const leftBoundary = windowWidth * 0.3;
-    const rightBoundary = windowWidth * 0.7;
-    clearInterval(growthInterval);
-    clearInterval(shrinkInterval);
-    leftZone.classList.remove('active');
-    centerZone.classList.remove('active');
-    rightZone.classList.remove('active');
-    
-    if (mouseX < leftBoundary) {
-    leftZone.classList.add('active');
-    startRotation(-20);
-    
-    // In reinterpretation mode, hovering left resets to 3050AD
-    if (isReinterpretationMode) {
-    resetTo3050AD();
-    return;
-    }
-    
-    // Normal behavior for going backwards in time
-    shrinkInterval = setInterval(() => {
-    if (currentSpaceJunkCount > 0) {
-    shrinkRandomSpaceJunk();
-    } else if (currentSmokestacksCount > 0) {
-    shrinkRandomSmokestacks();
-    } else if (currentNuclearCount > 0) {
-    shrinkRandomNuclear();
-    } else if (currentCityCount > 0) {
-    shrinkRandomCity();
-    } else if (currentAntennaCount > 0) {
-    shrinkRandomAntenna();
-    } else if (currentOilRigCount > 0) {
-    shrinkRandomOilRig();
-    } else if (currentTreeCount > 0) {
-    shrinkRandomTree();
-    }
-    }, 800);
-    } else if (mouseX > rightBoundary) {
-    rightZone.classList.add('active');
-    startRotation(20);
-    
-    // Different behavior in reinterpretation mode
-    if (isReinterpretationMode) {
-    growthInterval = setInterval(() => {
-    // Focus on growing trees and cities in reinterpretation mode
-    if (currentTreeCount < totalTrees) {
-    growRandomTree();
-    } else if (currentCityCount < totalCities) {
-    growRandomCity();
-    }
-    }, 400);
-    } else {
-    // Normal behavior for going forward in time
-    growthInterval = setInterval(() => {
-    const treePercentage = currentTreeCount / totalTrees;
-    const allIndustrialFull = (
-    currentOilRigCount >= totalOilRigs &&
-    currentAntennaCount >= totalAntennas &&
-    currentCityCount >= totalCities &&
-    currentNuclearCount >= totalNuclear &&
-    currentSmokestacksCount >= totalSmokestacks &&
-    currentSpaceJunkCount >= totalSpaceJunk
-    );
-    
-    if (currentTreeCount < totalTrees && !allIndustrialFull) {
-    growRandomTree();
-    } else if (treePercentage >= 1.0 && currentOilRigCount < totalOilRigs) {
-    growRandomOilRig();
-    } else if (treePercentage >= 1.0 && currentAntennaCount < totalAntennas) {
-    growRandomAntenna();
-    } else if (treePercentage >= 1.0 && currentCityCount < totalCities) {
-    growRandomCity();
-    } else if (treePercentage >= 1.0 && currentNuclearCount < totalNuclear) {
-    growRandomNuclear();
-    } else if (treePercentage >= 1.0 && currentSmokestacksCount < totalSmokestacks) {
-    growRandomSmokestacks();
-    } else if (treePercentage >= 1.0 && currentSpaceJunkCount < totalSpaceJunk) {
-    growRandomSpaceJunk();
-    } else if (allIndustrialFull && currentTreeCount > 0) {
-    if (Math.random() < 0.7) {
-    shrinkRandomTree();
-    }
-    }
-    }, 600);
-    }
-    } else {
-    centerZone.classList.add('active');
-    startRotation(60);
-    }
-    });
-    
-    // Listen for reinterpretation mode event
-    window.addEventListener('enterReinterpretationMode', () => {
-      console.log("Entering reinterpretation mode...");
-      enterReinterpretationMode();
-    });
-    
-    // Initialize everything
-    initializeAllElements();
-    startRotation();
-    updateTimeEra();
-    // Start with a few trees
-    setTimeout(() => {
-    for (let i = 0; i < 4; i++) {
-    setTimeout(growRandomTree, i * 1200);
-    }
-    }, 2000);
-    });
-    
-    // Tutorial Step Logic (same as before)
-    document.addEventListener("DOMContentLoaded", () => {
-    const tutorialRight = document.querySelector(".tutorial-right");
-    const tutorialLeft = document.querySelector(".tutorial-left");
-    const tutorialCenter = document.querySelector(".tutorial-center");
-    
-    const rightZone = document.getElementById("rightZone");
-    const leftZone = document.getElementById("leftZone");
-    const centerZone = document.getElementById("centerZone");
-    
-    let tutorialStep = 0;
-    
-    tutorialRight.style.display = "block";
-    tutorialLeft.style.display = "none";
-    tutorialCenter.style.display = "none";
-    
-    rightZone.addEventListener("mouseenter", () => {
-    if (tutorialStep === 0) {
-    fadeOut(tutorialRight);
-    tutorialLeft.style.display = "block";
-    tutorialStep = 1;
-    }
-    });
-    
-    leftZone.addEventListener("mouseenter", () => {
-    if (tutorialStep === 1) {
-    fadeOut(tutorialLeft);
-    tutorialCenter.style.display = "block";
-    tutorialStep = 2;
-    }
-    });
-    
-    centerZone.addEventListener("mouseenter", () => {
-    if (tutorialStep === 2) {
-    fadeOut(tutorialCenter);
-    tutorialStep = 3;
-    }
-    });
-    
-    function fadeOut(element) {
-    element.classList.add("fade-out");
-    setTimeout(() => {
-    element.style.display = "none";
-    element.classList.remove("fade-out");
-    }, 600);
-    }
-    });
-    
-    // Cursor settings (same as before)
-    let cursorTimer;
-    
-    function resetCursorTimer() {
-    document.body.style.cursor = "default";
-    clearTimeout(cursorTimer);
-    cursorTimer = setTimeout(() => {
-    document.body.style.cursor = "none";
-    }, 6000);
-    }
-    
-    document.addEventListener("mousemove", resetCursorTimer);
-    resetCursorTimer();
-    
-    // User Test (same as before)
-    document.addEventListener("DOMContentLoaded", () => {
-    const overlay = document.getElementById("userTestOverlay");
-    const closeBtn = document.getElementById("closeOverlay");
-    
-    closeBtn.addEventListener("click", () => {
-    overlay.style.display = "none";
-    });
-    });
-    
-    // GSAP Text animations (same as before)
-    document.addEventListener("DOMContentLoaded", (event) => {
-      gsap.registerPlugin(SplitText,TextPlugin)
-      let split = SplitText.create(".text", {
-        type: "chars words lines"
-      });
-    
-      let split2 = SplitText.create(".text-2", {
-        type: "chars words lines"
-      });
-    
-      let split3 = SplitText.create(".text-3", {
-        type: "chars words lines"
-      });
-    
-      let split4 = SplitText.create(".text-4", {
-        type: "chars words lines"
-      });
-    
-      let split5 = SplitText.create(".text-5", {
-        type: "chars words lines"
-      });
-    
-      gsap.from(split.chars, {
-        y: 100,
-        autoAlpha:0,
-        stagger: {
-          amount: 0.25,
-          from: "left"
-        }
-      })
-    
-      gsap.from(split2.chars, {
-        y: 100,
-        autoAlpha:0,
-        stagger: {
-          amount: 1,
-          from: "left"
-        }
-      })
-    
-      gsap.from(split3.chars, {
-        y: 100,
-        autoAlpha:0,
-        stagger: {
-          amount: 1,
-          from: "left"
-        }
-      })
-    
-      gsap.from(split4.chars, {
-        y: 100,
-        autoAlpha:0,
-        stagger: {
-          amount: 1,
-          from: "left"
-        }
-      })
-    
-      gsap.from(split5.chars, {
-        y: 100,
-        autoAlpha:0,
-        stagger: {
-          amount: 1,
-          from: "left"
-        }
-      })
-     });
-    
-     // Splash Screens with reinterpretation mode trigger and cursor reset
-     document.addEventListener("DOMContentLoaded", () => {
-    
-      const startButton = document.querySelector(".nav-window .button");
-      const startButtonNav2 = document.querySelector(".nav-window-2 .button");
-      const startButtonNav3 = document.querySelector(".nav-window-3 .button");
-      const startButtonNav4 = document.querySelector(".nav-window-4 .button");
-      const startButtonNav5 = document.querySelector(".nav-window-5 .button");
-      const nav1 = document.querySelector(".nav-1");
-      const nav2 = document.querySelector(".nav-2");
-      const nav3 = document.querySelector(".nav-3");
-      const nav4 = document.querySelector(".nav-4");
-      const nav5 = document.querySelector(".nav-5");
+      const treePercentage = gameState.counts.trees / ELEMENTS.trees.total;
+      const industrialTypes = ['oilRigs', 'antennas', 'nuclear', 'smokestacks', 'spaceJunk'];
+      const allIndustrialFull = industrialTypes.every(type => 
+        gameState.counts[type] >= ELEMENTS[type].total
+      );
       
-      startButton.addEventListener("click", () => {
-        resetCursorToCenter(); // Reset cursor position
-        gsap.to(nav1, {
-          y: -window.innerHeight,
-          opacity: 0,
-          duration: 1.2,
-          ease: "power2.inOut",
-          onComplete: () => {
-            nav1.style.display = "none";
-          }
-        });
+      let era = "Beginning";
+      let bgColor = "rgba(0, 0, 0, 0.7)";
+      
+      if (gameState.isReinterpretationMode) {
+        era = "A Better Future";
+        bgColor = "rgba(0, 150, 0, 0.8)";
+      } else {
+        // Era logic simplified
+        if (treePercentage === 0 && allIndustrialFull) {
+          era = "3050 AD";
+          bgColor = "rgba(10, 220, 120, 0.7)";
+        } else if (treePercentage >= 1.0 && allIndustrialFull) {
+          era = "2250 AD";
+          bgColor = "rgba(40, 160, 80, 0.7)";
+        } else if (treePercentage >= 1.0) {
+          era = "1750 AD";
+          bgColor = "rgba(60, 120, 60, 0.7)";
+        } else if (treePercentage > 0) {
+          era = "1300 AD";
+          bgColor = "rgba(90, 70, 50, 0.7)";
+        } else {
+          era = "1050 AD";
+          bgColor = "rgba(100, 50, 50, 0.7)";
+        }
+      }
+      
+      const timeIndicator = document.getElementById('timeIndicator');
+      if (timeIndicator) {
+        timeIndicator.textContent = era;
+        gsap.to(timeIndicator, { background: bgColor, duration: 0.5 });
+      }
+      
+      // Show navigation at key points
+      if (!gameState.splashesDisabled) {
+        if (gameState.counts.trees === 30 && !gameState.navShown.nav2) {
+          showNav('2');
+          gameState.navShown.nav2 = true;
+        }
+        if (treePercentage >= 1.0 && allIndustrialFull && !gameState.navShown.nav3) {
+          showNav('3');
+          gameState.navShown.nav3 = true;
+          
+          // Start automatic tree removal after nav-3 is shown to ensure progression
+          setTimeout(() => {
+            const autoRemovalInterval = setInterval(() => {
+              if (gameState.counts.trees > 0 && !gameState.navShown.nav4) {
+                shrinkRandomElement('trees');
+              } else {
+                clearInterval(autoRemovalInterval);
+              }
+            }, 800);
+          }, 3000); // Give user 3 seconds to see nav-3, then start auto-removal
+        }
+        if (treePercentage === 0 && allIndustrialFull && !gameState.navShown.nav4) {
+          showNav('4');
+          gameState.navShown.nav4 = true;
+        }
+      }
+    }
+  
+    // Show navigation overlays
+    function showNav(navName) {
+      const nav = document.querySelector(`.nav-${navName}`);
+      if (!nav) {
+        console.error(`Navigation element .nav-${navName} not found`);
+        return;
+      }
+      nav.style.display = "flex";
+      gsap.set(nav, { y: window.innerHeight, opacity: 0 });
+      gsap.to(nav, {
+        y: 0,
+        opacity: 1,
+        duration: 1.2,
+        ease: "power2.out",
+        onComplete: () => resetCursorToCenter()
       });
-    
-      startButtonNav2.addEventListener("click", () => {
-        resetCursorToCenter(); // Reset cursor position
-        gsap.to(nav2, {
-          y: -window.innerHeight,
-          opacity: 0,
-          duration: 1.2,
-          ease: "power2.inOut",
-          onComplete: () => {
-            nav2.style.display = "none";
-          }
-        });
+    }
+  
+    // Mouse and touch movement handler
+    function handleMovement(e) {
+      // Support both mouse and touch events
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const windowWidth = window.innerWidth;
+      const leftBoundary = windowWidth * 0.3;
+      const rightBoundary = windowWidth * 0.7;
+      
+      // Clear existing intervals safely
+      if (gameState.intervals.growth) clearInterval(gameState.intervals.growth);
+      if (gameState.intervals.shrink) clearInterval(gameState.intervals.shrink);
+      
+      // Remove active classes safely
+      ['leftZone', 'centerZone', 'rightZone'].forEach(id => {
+        const element = document.getElementById(id);
+        if (element) element.classList.remove('active');
       });
-    
-      startButtonNav3.addEventListener("click", () => {
-        resetCursorToCenter(); // Reset cursor position
-        gsap.to(nav3, {
-          y: -window.innerHeight,
-          opacity: 0,
-          duration: 1.2,
-          ease: "power2.inOut",
-          onComplete: () => {
-            nav3.style.display = "none";
+      
+      if (clientX < leftBoundary) {
+        const leftZone = document.getElementById('leftZone');
+        if (leftZone) leftZone.classList.add('active');
+        startRotation(-20);
+        
+        if (gameState.isReinterpretationMode) {
+          resetTo3050AD();
+          return;
+        }
+        
+        // Shrink elements in reverse order
+        gameState.intervals.shrink = setInterval(() => {
+          const shrinkOrder = ['spaceJunk', 'smokestacks', 'nuclear', 'cities', 'antennas', 'oilRigs', 'trees'];
+          for (const type of shrinkOrder) {
+            if (gameState.counts[type] > 0) {
+              shrinkRandomElement(type);
+              break;
+            }
           }
-        });
-      });
-    
-      startButtonNav4.addEventListener("click", () => {
-        resetCursorToCenter(); // Reset cursor position
-        gsap.to(nav4, {
-          y: -window.innerHeight,
-          opacity: 0,
-          duration: 1.2,
-          ease: "power2.inOut",
-          onComplete: () => {
-            nav4.style.display = "none";
-            setTimeout(() => {
-              const nav5 = document.querySelector(".nav-5");
-              nav5.style.display = "flex";
-              gsap.set(nav5, {
-                y: window.innerHeight,
-                opacity: 0
-              });
-              gsap.to(nav5, {
-                y: 0,
-                opacity: 1,
-                duration: 1.2,
-                ease: "power2.out",
-                onComplete: () => {
-                  resetCursorToCenter(); // Reset cursor when nav-5 is fully visible
+        }, 800);
+        
+      } else if (clientX > rightBoundary) {
+        const rightZone = document.getElementById('rightZone');
+        if (rightZone) rightZone.classList.add('active');
+        startRotation(20);
+        
+        if (gameState.isReinterpretationMode) {
+          gameState.intervals.growth = setInterval(() => {
+            // In reinterpretation mode, allow growth up to the reinterpretation totals
+            const maxTrees = 34;
+            const maxCities = 12;
+            
+            if (gameState.counts.trees < maxTrees) {
+              growRandomElement('trees');
+            } else if (gameState.counts.cities < maxCities) {
+              growRandomElement('cities');
+            }
+          }, 400);
+        } else {
+          // Normal growth logic
+          gameState.intervals.growth = setInterval(() => {
+            const treePercentage = gameState.counts.trees / ELEMENTS.trees.total;
+            const industrialTypes = ['oilRigs', 'antennas', 'nuclear', 'smokestacks', 'spaceJunk'];
+            const allIndustrialFull = industrialTypes.every(type => 
+              gameState.counts[type] >= ELEMENTS[type].total
+            );
+            
+            if (gameState.counts.trees < ELEMENTS.trees.total && !allIndustrialFull) {
+              growRandomElement('trees');
+            } else if (treePercentage >= 1.0 && !allIndustrialFull) {
+              // Grow industrial elements
+              const growOrder = ['oilRigs', 'antennas', 'cities', 'nuclear', 'smokestacks', 'spaceJunk'];
+              for (const type of growOrder) {
+                if (gameState.counts[type] < ELEMENTS[type].total) {
+                  growRandomElement(type);
+                  break;
                 }
-              });
-            }, 100);
-          }
-        });
+              }
+            } else if (allIndustrialFull && gameState.counts.trees > 0) {
+              // Aggressively remove trees once all industrial is built - higher probability
+              if (Math.random() < 0.9) {
+                shrinkRandomElement('trees');
+              }
+            }
+          }, 400); // Faster interval for better progression
+        }
+        
+      } else {
+        const centerZone = document.getElementById('centerZone');
+        if (centerZone) centerZone.classList.add('active');
+        startRotation(60);
+      }
+    }
+  
+    // Main initialization
+    document.addEventListener("DOMContentLoaded", () => {
+      console.log("DOM loaded, initializing...");
+      
+      // Initialize containers with error checking
+      let allContainersFound = true;
+      Object.keys(ELEMENTS).forEach(type => {
+        const container = document.getElementById(ELEMENTS[type].containerID);
+        if (!container) {
+          console.error(`Container not found: ${ELEMENTS[type].containerID}`);
+          allContainersFound = false;
+          return;
+        }
+        gameState.containers[type] = container;
+        gameState.counts[type] = 0;
       });
-    
-      // Nav-5 button triggers reinterpretation mode with cursor reset
-      startButtonNav5.addEventListener("click", () => {
-        resetCursorToCenter(); // Reset cursor position
-        gsap.to(nav5, {
-          y: -window.innerHeight,
-          opacity: 0,
-          duration: 1.2,
-          ease: "power2.inOut",
-          onComplete: () => {
-            nav5.style.display = "none";
-            // Enter reinterpretation mode after nav-5 is dismissed
-            setTimeout(() => {
-              // Access the main script scope through a custom event
-              window.dispatchEvent(new CustomEvent('enterReinterpretationMode'));
-            }, 200);
-          }
-        });
-      });
-
-      // Handle touch events for mobile
-      const handleTouchReset = () => {
-        resetCursorToCenter();
-      };
-
-      startButton.addEventListener("touchstart", handleTouchReset);
-      startButtonNav2.addEventListener("touchstart", handleTouchReset);
-      startButtonNav3.addEventListener("touchstart", handleTouchReset);
-      startButtonNav4.addEventListener("touchstart", handleTouchReset);
-      startButtonNav5.addEventListener("touchstart", handleTouchReset);
+      
+      if (!allContainersFound) {
+        console.error("Some containers missing - initialization aborted");
+        return;
+      }
+      
+      // Check for required elements
+      const timeIndicator = document.getElementById('timeIndicator');
+      if (!timeIndicator) {
+        console.error("Time indicator not found");
+        return;
+      }
+      
+      console.log("All containers found, proceeding with initialization...");
+      
+      // Initialize elements and start
+      initializeAll();
+      startRotation();
+      updateTimeEra();
+      
+      // Start with a few trees
+      setTimeout(() => {
+        for (let i = 0; i < 4; i++) {
+          setTimeout(() => growRandomElement('trees'), i * 1200);
+        }
+      }, 2000);
+      
+      // Event listeners - support both mouse and touch
+      document.addEventListener('mousemove', handleMovement);
+      document.addEventListener('touchmove', handleMovement, { passive: false });
+      window.addEventListener('enterReinterpretationMode', enterReinterpretationMode);
+      
+      // Setup other components
+      setupTutorial();
+      setupNavigationButtons();
+      setupCursorHiding();
+      setupTextAnimations();
+      
+      console.log("Initialization complete");
     });
+  
+    // Tutorial setup
+    function setupTutorial() {
+      const tutorialElements = {
+        right: document.querySelector(".tutorial-right"),
+        left: document.querySelector(".tutorial-left"), 
+        center: document.querySelector(".tutorial-center")
+      };
+      
+      const zones = {
+        right: document.getElementById("rightZone"),
+        left: document.getElementById("leftZone"),
+        center: document.getElementById("centerZone")
+      };
+      
+      let tutorialStep = 0;
+      
+      tutorialElements.right.style.display = "block";
+      tutorialElements.left.style.display = "none";
+      tutorialElements.center.style.display = "none";
+      
+      function fadeOut(element) {
+        element.classList.add("fade-out");
+        setTimeout(() => {
+          element.style.display = "none";
+          element.classList.remove("fade-out");
+        }, 600);
+      }
+      
+      zones.right.addEventListener("mouseenter", () => {
+        if (tutorialStep === 0) {
+          fadeOut(tutorialElements.right);
+          tutorialElements.left.style.display = "block";
+          tutorialStep = 1;
+        }
+      });
+      
+      zones.left.addEventListener("mouseenter", () => {
+        if (tutorialStep === 1) {
+          fadeOut(tutorialElements.left);
+          tutorialElements.center.style.display = "block";
+          tutorialStep = 2;
+        }
+      });
+      
+      zones.center.addEventListener("mouseenter", () => {
+        if (tutorialStep === 2) {
+          fadeOut(tutorialElements.center);
+          tutorialStep = 3;
+        }
+      });
+    }
+  
+    // Navigation buttons setup
+    function setupNavigationButtons() {
+      const navConfigs = [
+        { button: ".nav-window .button", nav: ".nav-1" },
+        { button: ".nav-window-2 .button", nav: ".nav-2" },
+        { button: ".nav-window-3 .button", nav: ".nav-3" },
+        { button: ".nav-window-4 .button", nav: ".nav-4", showNext: ".nav-5" },
+        { button: ".nav-window-5 .button", nav: ".nav-5", triggerReinterpretation: true }
+      ];
+      
+      navConfigs.forEach((config, index) => {
+        const button = document.querySelector(config.button);
+        const nav = document.querySelector(config.nav);
+        
+        if (!button) {
+          console.error(`Button not found: ${config.button}`);
+          return;
+        }
+        if (!nav) {
+          console.error(`Nav not found: ${config.nav}`);
+          return;
+        }
+        
+        function handleButtonClick() {
+          resetCursorToCenter();
+          gsap.to(nav, {
+            y: -window.innerHeight,
+            opacity: 0,
+            duration: 1.2,
+            ease: "power2.inOut",
+            onComplete: () => {
+              nav.style.display = "none";
+              
+              if (config.showNext) {
+                setTimeout(() => {
+                  const nextNav = document.querySelector(config.showNext);
+                  if (nextNav) {
+                    nextNav.style.display = "flex";
+                    gsap.set(nextNav, { y: window.innerHeight, opacity: 0 });
+                    gsap.to(nextNav, {
+                      y: 0, opacity: 1, duration: 1.2, ease: "power2.out",
+                      onComplete: () => resetCursorToCenter()
+                    });
+                  }
+                }, 100);
+              }
+              
+              if (config.triggerReinterpretation) {
+                setTimeout(() => {
+                  window.dispatchEvent(new CustomEvent('enterReinterpretationMode'));
+                }, 200);
+              }
+            }
+          });
+        }
+        
+        // Add both click and touch events for mobile compatibility
+        button.addEventListener("click", handleButtonClick);
+        button.addEventListener("touchend", (e) => {
+          e.preventDefault(); // Prevent double-firing on mobile
+          resetCursorToCenter();
+          handleButtonClick();
+        });
+      });
+    }
+  
+    // Cursor hiding setup
+    function setupCursorHiding() {
+      let cursorTimer;
+      
+      function resetCursorTimer() {
+        document.body.style.cursor = "default";
+        clearTimeout(cursorTimer);
+        cursorTimer = setTimeout(() => {
+          document.body.style.cursor = "none";
+        }, 6000);
+      }
+      
+      document.addEventListener("mousemove", resetCursorTimer);
+      resetCursorTimer();
+    }
+  
+    // Text animations setup
+    function setupTextAnimations() {
+      try {
+        if (typeof gsap === 'undefined' || typeof SplitText === 'undefined') {
+          console.error("GSAP or SplitText not loaded");
+          return;
+        }
+        
+        gsap.registerPlugin(SplitText, TextPlugin);
+        
+        [".text", ".text-2", ".text-3", ".text-4", ".text-5"].forEach(selector => {
+          const element = document.querySelector(selector);
+          if (!element) {
+            console.warn(`Text element not found: ${selector}`);
+            return;
+          }
+          
+          try {
+            const split = SplitText.create(selector, { type: "chars words lines" });
+            gsap.from(split.chars, {
+              y: 100,
+              autoAlpha: 0,
+              stagger: { amount: selector === ".text" ? 0.25 : 1, from: "left" }
+            });
+          } catch (error) {
+            console.error(`Error setting up animation for ${selector}:`, error);
+          }
+        });
+      } catch (error) {
+        console.error("Error in setupTextAnimations:", error);
+      }
+    }
+  
   })();
-</script>
+  </script>
 
 </body>
 </html>

@@ -1,0 +1,222 @@
+{
+    "elements": {
+      "trees": {
+        "total": 34,
+        "totalReinterpretation": 34,
+        "imageSrc": "images/trees-04.png",
+        "className": "tree-img",
+        "rotation": 90,
+        "transformOrigin": "50% 190px",
+        "surfaceY": -200,
+        "containerOffset": 210
+      },
+      "oilRigs": {
+        "total": 3,
+        "totalReinterpretation": 0,
+        "imageSrc": "images/oil-rig-01.png",
+        "className": "oil-rig-img",
+        "rotation": 90,
+        "transformOrigin": "50% 200px",
+        "surfaceY": -205,
+        "containerOffset": 210
+      },
+      "antennas": {
+        "total": 5,
+        "totalReinterpretation": 0,
+        "imageSrc": "images/antenna-01.png",
+        "className": "antenna-img",
+        "rotation": 55,
+        "transformOrigin": "50% 195px",
+        "surfaceY": -202,
+        "containerOffset": 210
+      },
+      "cities": {
+        "total": 6,
+        "totalReinterpretation": 12,
+        "imageSrc": "images/city-1.png",
+        "className": "city-img",
+        "rotation": 10,
+        "transformOrigin": "50% 195px",
+        "surfaceY": -202,
+        "containerOffset": 210
+      },
+      "nuclear": {
+        "total": 3,
+        "totalReinterpretation": 0,
+        "imageSrc": "images/nuclear-1.png",
+        "className": "nuclear-img",
+        "rotation": 40,
+        "transformOrigin": "50% 195px",
+        "surfaceY": -202,
+        "containerOffset": 210
+      },
+      "smokestacks": {
+        "total": 5,
+        "totalReinterpretation": 0,
+        "imageSrc": "images/smokestacks-1.png",
+        "className": "smokestacks-img",
+        "rotation": 25,
+        "transformOrigin": "50% 195px",
+        "surfaceY": -202,
+        "containerOffset": 210
+      },
+      "spaceJunk": {
+        "total": 3,
+        "totalReinterpretation": 0,
+        "imageSrc": "images/space-junk-1.png",
+        "className": "space-junk-img",
+        "rotation": 57,
+        "transformOrigin": "50% 195px",
+        "surfaceY": -202,
+        "containerOffset": 210
+      }
+    },
+    "animations": {
+      "growDuration": 1.2,
+      "growEase": "bounce.out",
+      "shrinkDuration": 1.0,
+      "shrinkEase": "power2.in",
+      "fadeInDuration": 0.3,
+      "rotationSpeeds": {
+        "slow": 60,
+        "normal": 20,
+        "fast": -20
+      },
+      "staggerTiming": {
+        "growth": 80,
+        "removal": 80,
+        "industrialRemoval": 100
+      }
+    },
+    "gameFlow": {
+      "navTriggers": {
+        "nav2": {
+          "condition": "treeCount",
+          "threshold": 30
+        },
+        "nav3": {
+          "condition": "fullIndustrialWithTrees",
+          "threshold": 1.0
+        },
+        "nav4": {
+          "condition": "fullIndustrialNoTrees",
+          "threshold": 0
+        }
+      },
+      "initialSpawn": {
+        "count": 4,
+        "delay": 1200,
+        "startDelay": 2000
+      },
+      "reinterpretationSpawn": {
+        "trees": {
+          "count": 8,
+          "delay": 200
+        },
+        "cities": {
+          "count": 6,
+          "delay": 300,
+          "startDelay": 1000
+        }
+      },
+      "resetTo3050Spawn": {
+        "oilRigs": { "delay": 100 },
+        "antennas": { "delay": 150 },
+        "cities": { "delay": 120 },
+        "nuclear": { "delay": 180 },
+        "smokestacks": { "delay": 160 },
+        "spaceJunk": { "delay": 140 }
+      }
+    },
+    "timeEras": {
+      "reinterpretation": {
+        "name": "A Better Future",
+        "backgroundColor": "rgba(0, 150, 0, 0.8)"
+      },
+      "eras": [
+        {
+          "name": "3050 AD",
+          "backgroundColor": "rgba(10, 220, 120, 0.7)",
+          "condition": {
+            "trees": 0,
+            "allIndustrial": true
+          }
+        },
+        {
+          "name": "2750 AD",
+          "backgroundColor": "rgba(20, 200, 100, 0.7)",
+          "condition": {
+            "trees": { "min": 0.01, "max": 0.5 },
+            "allIndustrial": true
+          }
+        },
+        {
+          "name": "2500 AD",
+          "backgroundColor": "rgba(30, 180, 90, 0.7)",
+          "condition": {
+            "trees": { "min": 0.5, "max": 1.0 },
+            "allIndustrial": true
+          }
+        },
+        {
+          "name": "2250 AD",
+          "backgroundColor": "rgba(40, 160, 80, 0.7)",
+          "condition": {
+            "trees": 1.0,
+            "allIndustrial": true
+          }
+        },
+        {
+          "name": "2025 AD",
+          "backgroundColor": "rgba(50, 140, 70, 0.7)",
+          "condition": {
+            "trees": 1.0,
+            "someIndustrial": true
+          }
+        },
+        {
+          "name": "1750 AD",
+          "backgroundColor": "rgba(60, 120, 60, 0.7)",
+          "condition": {
+            "trees": 1.0,
+            "noIndustrial": true
+          }
+        },
+        {
+          "name": "1500 AD",
+          "backgroundColor": "rgba(80, 100, 50, 0.7)",
+          "condition": {
+            "trees": { "min": 0.35, "max": 1.0 },
+            "noIndustrial": true
+          }
+        },
+        {
+          "name": "1300 AD",
+          "backgroundColor": "rgba(90, 70, 50, 0.7)",
+          "condition": {
+            "trees": { "min": 0.01, "max": 0.35 },
+            "noIndustrial": true
+          }
+        },
+        {
+          "name": "1050 AD",
+          "backgroundColor": "rgba(100, 50, 50, 0.7)",
+          "condition": {
+            "trees": 0,
+            "noIndustrial": true
+          }
+        }
+      ]
+    },
+    "ui": {
+      "mouseZones": {
+        "leftBoundary": 0.3,
+        "rightBoundary": 0.7
+      },
+      "intervals": {
+        "growth": 600,
+        "shrink": 800,
+        "reinterpretationGrowth": 400
+      }
+    }
+  }
