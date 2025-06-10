@@ -1050,5 +1050,24 @@ for (let i = 0; i < elementTypes.length; i++) {
       document.addEventListener("mousemove", resetCursorTimer);
       resetCursorTimer();
     }
-  
+
+    function visuallyHideScrollbar() {
+        const style = document.createElement('style');
+        style.id = 'hide-scroll-style';
+        style.innerHTML = `
+          body {
+            overflow: scroll; /* Keep scroll working */
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE */
+          }
+      
+          body::-webkit-scrollbar {
+            width: 0px;
+            height: 0px;
+            display: none; /* Chrome & Safari */
+          }
+        `;
+        document.head.appendChild(style);
+      }
+      
   })();
