@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    
+    <title>Case Study Template - put your title here</title>
+
+    <!--/ /-------- Normalize CSS --------/ /-->
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" rel="stylesheet">
+	
+	<!--/ /-------- Google Fonts --------/ /-->
+    <!-- add any google fonts you want to use -->
+	
+	<!--/ /-------- Font Awesome --------/ /-->
+    <!--Add this if you want icons from font awesome
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">-->
+	
+	<!--/ /-------- Your Styles --------/ /-->
+	<link href="styles.css" rel="stylesheet">
+	
+	<!--/ /-------- Needed For Mobile Devices --------/ /-->
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <header id="top">
+        <div class="container">
+            <h1>Our World</h1>
+            <p>Brian Rodriguez-Torres</p>
+            <address>&#098;&#114;&#111;&#100;&#114;&#105;&#103;&#117;&#101;&#122;&#116;&#111;&#114;&#114;&#101;&#115;&#064;&#117;&#099;&#100;&#097;&#118;&#105;&#115;&#046;&#101;&#100;&#117;</address>
+
+        </div>
+    </header>
+    <nav>
+        <ul>
+            <li><a href="#overview">overview</a></li>
+            <li><a href="#research">research</a></li>
+            <li><a href="#design">design</a></li>
+            <li><a href="#ui">user interface</a></li>
+            <li><a href="#revisions">revisions</a></li>
+            <li><a href="#summary">summary</a></li>
+        </ul>
+    </nav>
+
+    <!--/ /-------- Overview Section --------/ /-->
+    <section id="overview">
+        <div class="container">
+            <h2>Project Overview</h2>
+            <img src="images/img2.png">
+            <div class="content">
+                <p>A web-based environmental storytelling experience meant for non-environmentalists that could transform complex climate data into an emotionally resonant visual narrative. The project presents a 1000-year timeline, starting 1000 years back, passing current time, and looking 1000 years ahead. It’s about  an interactive planetary visualization, allowing users to witness the environmental consequences of human civilization's choices.</p>
+
+                <p>The experience unfolds across five chapters: pre-industrial stability, industrial revolution, modern environmental crisis, dystopian future collapse, and an alternative sustainable timeline. This "reinterpretation mode" demonstrates how different choices could lead to ecological restoration rather than destruction</p>
+
+                <p>Users navigate through time via intuitive mouse/touch controls, hovering right advances through different environmental epochs while hovering left reverses time. A centered, spinning planet serves as the canvas where symbolic elements (trees, factories, cities, and pollution) will dynamically appear and disappear based on user interaction.</p>
+                    
+                
+            </div>
+        </div>
+    </section>
+
+    <!--/ /-------- UX Research Section --------/ /-->
+    <section id="research">
+        <div class="container">
+            <h2>Project Research</h2>
+            <div class="content">
+
+                <p>Being inspired to construct an interactive experience meant taking came from successful interactive learning projects, particularly educational experiences that combine narrative storytelling with hands-on interaction elements. Projects like the interactive “Crokinole”project by Pudding, the tutorials demonstrate how mixing graphics, games, and function creates engaging user experiences that teach complex concepts through a guided exploration. Employing an essay-style narrative structure with tutorial-based learning and game mechanics</p>
+                <p>Before finalizing the concept, the mechanics were shown to users in a test, where only the instructions to how the world spins were included. This showed how users interacted with the design, which informed the design going forward. After testing, a more of a guided narrative approach was taken, with overlays appearing and informing the user what they’re seeing.</p>
+
+         
+
+                <img src="images/img3.png">
+            </div>
+        </div>
+    </section>
+
+    <!--/ /-------- Design Section --------/ /-->
+    <section id="design">
+        <div class="container">
+            <h2>Visual Design</h2>
+            <div class="content">
+                <img src="images/img4.png">
+
+                <p>Conceptually, the circle functions as a powerful metaphor operating on multiple levels: representing Earth's physical form, the cyclical nature of environmental systems, and the concept of temporal loops where past decisions influence future outcomes. The spinning motion reinforces the passage of time while suggesting that environmental patterns are interconnected rather than linear. Unlike linear progressions toward inevitable endpoints, circles suggest the possibility of return, restoration, and even total renewal.</p>
+                <p>All symbolic elements (trees, factories, cities, oil rigs) were designed as scalable vector graphics in Adobe Illustrator, then exported as optimized PNG files to ensure compatibility and optimization across devices while maintaining manageable file sizes. This workflow allowed consistancy as each image was also the same canvas size so it created for a modular interchangability for when creating the animations.<br><br>GSAP-powered animations gave a robust toolset for customizability, they streamlined animation for both pictorial elements and all text on screen with split-text.</p>
+
+            </div>
+        </div>
+    </section>
+
+    <!--/ /-------- UI Section --------/ /-->
+    <section id="ui">
+        <div class="container">
+            <h2>User Interface</h2>
+            <div class="content">
+                <div class="column">
+                    <p>Prioritizing an invisible interface design, where navigation feels intuitive and unobtrusive, allows users to focus on the environmental narrative rather than learning complex controls.</p>
+
+                    <p>The interface divides the screen into three invisible interaction zones: left (30%), center (40%), and right (30%). This approach eliminates traditional buttons or sliders, creating a more immersive experience where cursor position directly controls time flow. Users naturally discover that hovering left reverses history while hovering right advances it, with the center zone providing pause functionality for contemplation.</p>
+                </div>
+
+                <div class="column">
+                    <p>Tutorial elements use a different font to distinguish instructional content from narrative text, creating a clear information hierarchy with less visual competition.</p>
+                    <p>Overlays appear for the user to click, keeping them engaged and informed throughout the story. These give a view of what's happening, acting as a narrorator and a break to reflect, as the whole screen's appearance is changed</p>
+
+                
+                </div>
+                <div>
+                    <img src="images/img5.png">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!--/ /-------- Revisions Section --------/ /-->
+    <section id="revisions">
+        <div class="container">
+            <h2>Revisions</h2>
+            <div class="content">
+                <p>The project went through a few iterations, but the overall symbol of the circle spinning was the same since the beginning. It took about 3 user interaction iterations to get where this project got, which all explored how much of the user can have say in the design. Overall, there’s a good balance between the story happening and the control to have it play out.
+                </p>
+
+                <p>In the future, this project could incorprate some real time data, the symbolic trees can be a representation of deforestation statistics in real time. This could be a future that comes after that narrative, or even work as a a stand-alone project. A real-time reflection of the world would bring art, science, and enviromental justice under one voice.</p>
+
+                <img src="images/img7.png">
+            </div>
+        </div>
+    </section>
+
+    <!--/ /-------- Summary Section --------/ /-->
+    <section id="summary">
+        <div class="container">
+            <h2>Summary</h2>
+            <div class="content">
+                <p>The project offers a fresh approach to communicating data about the climate by betting on building an emotional connection to the Earth after seeing how we got where we are. Data can be overloaded to people, and in the end it’s often hard to make sense of numbers when it feel like there’s a disconnection to the Earth in the age of information.</p>
+
+                <p>Creating a visually minimalistic project that is readily accessible, cross-compatible, and fully optimized demonstrates that people can access meaningful interactive experiences essentially anywhere without requiring cutting-edge hardware.</p>
+            </div>
+            <img src="images/img1.png">
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>UX/UI Case Study: Our World</p>
+            <p>Brian Rodriguez-Torres</p>
+            <address>&#098;&#114;&#111;&#100;&#114;&#105;&#103;&#117;&#101;&#122;&#116;&#111;&#114;&#114;&#101;&#115;&#064;&#117;&#099;&#100;&#097;&#118;&#105;&#115;&#046;&#101;&#100;&#117;</address>
+            <p><a href="#top">top</a></p>
+        </div>
+    </footer>
+    
+</body>
+</html>
